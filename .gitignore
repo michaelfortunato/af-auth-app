@@ -1,3 +1,7 @@
+# ignore secrets
+*.pem
+*.pem.pub
+
 # Logs
 logs
 *.log

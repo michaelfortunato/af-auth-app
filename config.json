@@ -1,0 +1,6 @@
+{
+    "key_id": 1,
+    "privateKeyFile": "./KEY.pem", 
+    "algorithm": "RS256", 
+    "publicKeyFile": "./KEY.pem.pub"
+}
