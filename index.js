@@ -5,7 +5,7 @@ const login = require('./login')
 const app = express()
 const port = 3000;
 
-const database_url = process.env.database_url || "192.168.49.2" ;
+const database_url = process.env.database_url || "192.168.99.101" ;
 const database_port = process.env.database_port || 30001;
 const database_name = "AR"
 
