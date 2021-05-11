@@ -6,8 +6,8 @@ spec:
   selector:
     app: auth-app
   ports:
-  - port: 7000
-    targetPort: 7000
+  - port: 8080
+    targetPort: 8080
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -27,13 +27,26 @@ spec:
     spec:
       containers:
       - name: auth-app-node-container
-        image: nginx
+        image: michaelfortunato/ar:AR-Auth-Service
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
+        env:
+        - name: PORT
+          value: "8080"
+        - name: database_url
+          valueFrom:
+            configMapKeyRef:
+              key: database_url
+              name: db-config-map
+        - name: database_port
+          valueFrom:
+            configMapKeyRef:
+              key: database_port
+              name: db-config-map
         ports:
-        - containerPort: 7000
+        - containerPort: 8080
         volumeMounts:
            - name: secret-volume
              mountPath: /etc/secret-volume
