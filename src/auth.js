@@ -4,9 +4,11 @@ const fs = require('fs');
 const config = require('./config.json');
 
 exports.generateAccessToken = (contents) => {
-    const private_key = fs.readFileSync(config.privateKeyFile);
-    const algorithm = config.algorithm;
-    const token = jwt.sign(contents, private_key, {algorithm: algorithm});
+    const privateKeyPath = process.env.privateKeyFile || './jwtRS256_1.key'
+    const privateKey = fs.readFileSync(privateKeyPath, 'utf-8');
+    console.log(privateKey)
+    const algorithm = 'RS256';
+    const token = jwt.sign(contents, privateKey, {algorithm: algorithm});
     return token;
 }
 

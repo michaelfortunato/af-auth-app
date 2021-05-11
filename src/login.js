@@ -5,9 +5,15 @@ const { generateAccessToken } = require('./auth');
 const router = express.Router()
 
 router.post("/", async (req, res) => {
+    try {
     const database = req.app.locals.database
-    const profile = await database.collection("auth").findOne({username: "user1"});
-    res.send(profile)
+    const profile = await database.collection("Authentication").findOne({username: "user1"});
+    const jwt = generateAccessToken(profile)
+    console.log(jwt)
+    res.send(jwt)
+    } catch (error) {
+        res.send(error.message)
+    }
 })
 
 
