@@ -25,6 +25,7 @@ router.post("/", async (req, res) => {
             res.send("Invalid username or password")
         }
     } catch (error) {
+        console.log(error)
         res.send(error.message)
     }
 })
