@@ -45,6 +45,11 @@ spec:
             configMapKeyRef:
               key: database_port
               name: db-config-map
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: redis-password
+              name: redis-password 
         ports:
         - containerPort: 8080
         volumeMounts:
