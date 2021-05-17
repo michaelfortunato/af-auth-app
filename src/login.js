@@ -10,7 +10,7 @@ router.post("/", async (req, res) => {
     try {
         const database = req.app.locals.database
         const profile = await database.collection("Authentication").findOne({username: "user1"});
-        
+           
         console.log(req.body.password)
         // Compare passwords
         const isValid = await bcrypt.compare(req.body.password, hashedPassword)
