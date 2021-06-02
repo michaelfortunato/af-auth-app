@@ -8,12 +8,12 @@ const router = express.Router()
 
 router.post("/", async (req, res) => {
     try {
+        console.log(req.body)
         const database = req.app.locals.database
-        const profile = await database.collection("Authentication").findOne({username: "user1"});
-           
-        console.log(req.body.password)
+        const profile = await database.collection("Authentication").findOne({username: req.body.username});
+        if (profile === null) throw "User does not exist"
         // Compare passwords
-        const isValid = await bcrypt.compare(req.body.password, hashedPassword)
+        const isValid = await bcrypt.compare(req.body.password, profile.password)
         if (isValid) {
             const {kid, token} = generateAccessToken(profile)
             res.send({
@@ -22,11 +22,10 @@ router.post("/", async (req, res) => {
             })
         } else {
             res.sendStatus(401)
-            res.send("Invalid username or password")
         }
     } catch (error) {
         console.log(error)
-        res.send(error.message)
+        res.sendStatus(401)
     }
 })
 

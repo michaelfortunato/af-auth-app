@@ -3,6 +3,7 @@ const { MongoClient } = require('mongodb');
 const redis = require('redis');
 const {promisify} = require('util')
 const login = require('./login')
+const signup = require('./signup')
 const { initAuth } = require('./auth');
 
 const app = express()
@@ -14,7 +15,7 @@ const database_name = "AR"
 const username = "username";
 const password = "password";
 
-const cache_master_url = process.env.REDIS_MASTER_URL || "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
+const cache_master_url = process.env.REDIS_MASTER_URL || "127.0.0.1" // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
 const cache_master_port = process.env.REDIS_MASTER_PORT || 6379;
 
 const cache_slave_url = process.env.REDIS_SLAVE_URL || "rc-chart-redis-replicas.default.svc.cluster.local"
@@ -55,6 +56,7 @@ async function main()  {
     initAuth() 
     app.use(express.json());
     app.use("/login", login);
+    app.use("/signup", signup);
     app.listen(port, () => console.log(`Listening on port ${port}`));
 }
 main();
