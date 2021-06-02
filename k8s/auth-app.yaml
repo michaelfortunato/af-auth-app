@@ -27,24 +27,23 @@ spec:
     spec:
       containers:
       - name: auth-app-node-container
-        image: michaelfortunato/ar:AR-Auth-Service
+        imagePullPolicy: Never # MUST BE REMOVED IN PRODUCTION
+        image: aws-ar-auth:latest
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
         env:
-        - name: PORT
-          value: "8080"
-        - name: database_url
+        - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
-            configMapKeyRef:
-              key: database_url
-              name: db-config-map
-        - name: database_port
+            secretKeyRef:
+              key: mongo-root-username
+              name: mongodb-secret
+        - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
-            configMapKeyRef:
-              key: database_port
-              name: db-config-map
+            secretKeyRef:
+              key: mongo-root-password
+              name: mongodb-secret
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -53,9 +52,9 @@ spec:
         ports:
         - containerPort: 8080
         volumeMounts:
-           - name: secret-volume
-             mountPath: /etc/secret-volume
+           - name: jwt-secrets
+             mountPath: /etc/secret-volume/jwts
       volumes:
-        - name: secret-volume
+        - name: jwt-secrets 
           secret:
-            secretName: auth-secrets
+            secretName: jwt-secrets

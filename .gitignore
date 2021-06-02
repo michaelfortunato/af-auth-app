@@ -1,4 +1,6 @@
 # ignore secrets
+*.key
+*.key.pub
 *.pem
 *.pem.pub
 
