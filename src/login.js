@@ -54,12 +54,13 @@ router.post("/", async (req, res) => {
         },
       }
     );
-    res.cookie("refreshToken", refreshToken, {
+    /*res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       path: "/refresh-token",
-    });
+    });*/
     res.send({
       accessToken: accessToken,
+      refreshToken: refreshToken
     });
   } catch (error) {
     console.log(error);
