@@ -9,11 +9,11 @@ const { initAuth } = require("./auth");
 const app = express();
 const port = process.env.PORT || 8080;
 
-const database_url = process.env.MONGODB_SERVICE_SERVICE_HOST;
-const database_port = process.env.MONGODB_SERVICE_SERVICE_PORT;
+const database_url = process.env.MONGODB_SERVICE_SERVICE_HOST || "localhost";
+const database_port = process.env.MONGODB_SERVICE_SERVICE_PORT || 30000; // Use this as the dev port 
 const database_name = "AR";
-const username = process.env.MONGO_INITDB_ROOT_USERNAME;
-const password = process.env.MONGO_INITDB_ROOT_PASSWORD;
+const username = process.env.MONGO_INITDB_ROOT_USERNAME || "username";
+const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
 
 const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1"; // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
 const cache_master_port = process.env.REDIS_MASTER_PORT || 6379;
@@ -69,6 +69,7 @@ async function main() {
     app.use("/signup", signup);
     app.listen(port, () => console.log(`Listening on port ${port}`));
   } catch (error) {
+    console.log(error)
     console.log("Could not start auth service");
   }
 }

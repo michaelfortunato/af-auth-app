@@ -52,9 +52,16 @@ spec:
         ports:
         - containerPort: 8080
         volumeMounts:
-           - name: jwt-secrets
-             mountPath: /etc/secret-volume/jwts
+           - name: access-token-secrets 
+             mountPath: /etc/secret-volume/jwts/access-tokens
+           - name: refresh-token-secrets 
+             mountPath: /etc/secret-volume/jwts/refresh-tokens
       volumes:
-        - name: jwt-secrets 
+        - name: access-token-secrets
           secret:
-            secretName: jwt-secrets
+            secretName: access-token-secrets
+        - name: refresh-token-secrets
+          secret:
+            secretName: refresh-token-secrets
+
+

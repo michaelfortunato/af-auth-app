@@ -40,7 +40,7 @@ router.use("/", async (req, res, next) => {
   }
 });
 router.post("/", (req, res) => {
-  res.send("Successfully Signed up");
+  res.send("Successfully signed up");
 });
 
 module.exports = router;
