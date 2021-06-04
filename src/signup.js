@@ -33,14 +33,14 @@ router.use("/", async (req, res, next) => {
     // If the error code is 11000, 
     // then it is a duplicate key, and the account already exists
     if (error.code === 11000) {
-        res.status(500).send({ error: "Account already exists" });
+        res.status(500).send({ statusMessage: "Account already exists" });
     } else {
-        res.status(500).send({ error: "Could not sign user up"})
+        res.status(500).send({ statusMessage: "Could not sign user up"})
     }
   }
 });
 router.post("/", (req, res) => {
-  res.send("Successfully signed up");
+  res.send({statusMessage: "Successfully signed up"});
 });
 
 module.exports = router;

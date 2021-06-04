@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
       console.log(`Profile is null ${req.body.email}`);
       res
         .status(500)
-        .send({ error: "Could not log in. Email or password is incorrect." });
+        .send({ statusMessage: "Could not log in. Email or password is incorrect." });
     }
 
     // If more than one profiles exist,
@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
       console.log(profile);
       console.log(isNext);
       console.log(profileCursor);
-      res.status(500).send({ error: "Service is down. Check back later." });
+      res.status(500).send({ statusMessage: "Service is down. Check back later." });
     }
 
     // Compare passwords
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
       console.log("Genuinely invalid");
       res
         .status(401)
-        .send({ error: "Could not log in. Email or password is incorrect." });
+        .send({ statusMessage: "Could not log in. Email or password is incorrect." });
     }
 
     const accessToken = generateAccessToken({email: profile.email});
@@ -66,7 +66,7 @@ router.post("/", async (req, res) => {
     console.log(error);
     res
       .status(401)
-      .send({ error: "Could not log in. Email or password is incorrect." });
+      .send({ statusMessage: "Could not log in. Email or password is incorrect." });
   }
 });
 
