@@ -59,6 +59,7 @@ router.post("/", async (req, res) => {
       path: "/refresh-token",
     });*/
     res.send({
+      statusMessage: "Successfully logged in",
       accessToken: accessToken,
       refreshToken: refreshToken
     });
