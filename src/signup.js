@@ -1,16 +1,37 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const redis = require("redis");
 const router = express.Router();
 
 const saltRounds = 10;
+const verificationExpirationSeconds = 3600;
 router.use("/", async (req, res, next) => {
   try {
-    const hashed_password = await bcrypt.hash(req.body.password, saltRounds);
-    res.locals.hashed_password = hashed_password;
+    const email = req.body.email.toLowerCase();
+
+    const accountCollection =
+      req.app.locals.database.collection("Verified-Accounts");
+    const accountAlreadyExistsPromise = accountCollection.findOne({
+      _id: email,
+      email: email,
+    });
+    const hashedPasswordPromise = bcrypt.hash(req.body.password, saltRounds);
+
+    const [accountAlreadyExists, hashedPassword] = await Promise.all([
+      accountAlreadyExistsPromise,
+      hashedPasswordPromise,
+    ]);
+
+    if (accountAlreadyExists) {
+      return res
+        .status(401)
+        .send({ statusMessage: "Email already registered to Art-Flex" });
+    }
+    res.locals.hashedPassword = hashedPassword;
     next();
   } catch (error) {
-    res.sendStatus(500);
+    next(error);
   }
 });
 router.use("/", async (req, res, next) => {
@@ -21,26 +42,53 @@ router.use("/", async (req, res, next) => {
     /*
     await req.app.locals.master_cache_set(
       req.body.username,
-      req.locals.hashed_password
+      req.locals.hashedPassword
     );*/
-    await req.app.locals.database.collection("Authentication").insertOne({
-      _id: req.body.email,
-      email: req.body.email,
-      password: res.locals.hashed_password,
-    });
+    const signUpCollection = req.app.locals.database.collection("SignUpForms");
+
+    const email = req.body.email.toLowerCase();
+    //If someone previously attempted a sign up but did not complete verification,
+    //then we want to replace their sign up entry.
+    const vertificationToken = crypto.randomBytes(48).toString("hex");
+    signUpCollection.createIndex(
+      { verificationToken: 1 },
+      { expireAfterSeconds: verificationExpirationSeconds },
+      { unique: true }
+    );
+
+    await signUpCollection.replaceOne(
+      { _id: email, email: email },
+      {
+        _id: email,
+        email: email,
+        password: res.locals.hashedPassword,
+        verificationToken: vertificationToken,
+      },
+      { upsert: true }
+    );
+
+    res.locals.body = {
+      email: email,
+      verificationToken: vertificationToken,
+    };
     next();
   } catch (error) {
-    // If the error code is 11000, 
-    // then it is a duplicate key, and the account already exists
-    if (error.code === 11000) {
-        res.status(500).send({ statusMessage: "Account already exists" });
-    } else {
-        res.status(500).send({ statusMessage: "Could not sign user up"})
-    }
+    next(error);
   }
 });
+
+router.use("/", (error, req, res, next) => {
+  // If the error code is 11000,
+  // then it is a duplicate key, and the account already exists
+  if (error.code === 11000) {
+    return res.status(500).send({ statusMessage: "Account already exists" });
+  } else {
+    return res.status(500).send({ statusMessage: error.message });
+  }
+});
+
 router.post("/", (req, res) => {
-  res.send({statusMessage: "Successfully signed up"});
+  return res.status(200).send(res.locals.body);
 });
 
 module.exports = router;

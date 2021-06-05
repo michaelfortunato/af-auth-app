@@ -4,7 +4,9 @@ const fs = require('fs');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 
+let accessTokenPublicKeys = [];
 let accessTokenPrivateKeys = [];
+let refreshTokenPublicKeys = [];
 let refreshTokenPrivateKeys = [];
 
 // Load the tokens 
@@ -14,17 +16,23 @@ exports.initAuth =() => {
     fs.readdirSync(accessTokenKeyDir).forEach(file => {
         if (file.split('.').pop() === 'key') {
             accessTokenPrivateKeys.push(fs.readFileSync(accessTokenKeyDir+'/'+file, 'utf-8'));
-        }    
+        } else if (file.split(".").pop() === "pub") {
+           accessTokenPublicKeys.push(fs.readFileSync(accessTokenKeyDir+"/"+file, "utf-8"));
+        }
     });
     fs.readdirSync(refreshTokenKeyDir).forEach(file => {
         if (file.split('.').pop() === 'key') {
             refreshTokenPrivateKeys.push(fs.readFileSync(refreshTokenKeyDir+'/'+file, 'utf-8'));
-        }    
+        } else if (file.split(".").pop() === "pub") {
+          refreshTokenPublicKeys.push(fs.readFileSync(refreshTokenKeyDir+"/"+file, "utf-8"));
+        }
     });
 
     if (accessTokenPrivateKeys.length == 0 || refreshTokenPrivateKeys.length == 0) {
         throw 'Could not initialize auth service'
     }
+     
+    console.log("Initialized auth service!🔥");
 }
 
 // Make this middlewear
@@ -42,6 +50,8 @@ exports.generateRefreshToken = (contents) => {
     const kid = Math.floor(Math.random() * refreshTokenPrivateKeys.length);
     const privateKey = refreshTokenPrivateKeys[kid] ;
     const algorithm = 'RS256';
-    const token = jwt.sign(contents, privateKey, {jwtid: jwtid, keyid: kid.toString(), expiresIn: '7d', algorithm: algorithm});
+    const token = jwt.sign(contents, privateKey, {jwtid: jwtid, keyid: kid.toString(), expiresIn: '15s', algorithm: algorithm});
     return [jwtid, token];
 }
+
+exports.refreshTokenPublicKeys = refreshTokenPublicKeys;

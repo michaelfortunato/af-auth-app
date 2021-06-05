@@ -8,14 +8,14 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   try {
     const database = req.app.locals.database;
-    const authCollection = database.collection("Authentication");
+    const authCollection = database.collection("Verified-Accounts");
     const profileCursor = await authCollection.find({ _id: req.body.email });
     // A mongodb cursor is returned
     const profile = await profileCursor.next();
     // If not profile exists, exit.
     if (profile === null) {
       console.log(`Profile is null ${req.body.email}`);
-      res
+      return res
         .status(500)
         .send({ statusMessage: "Could not log in. Email or password is incorrect." });
     }
@@ -29,14 +29,14 @@ router.post("/", async (req, res) => {
       console.log(profile);
       console.log(isNext);
       console.log(profileCursor);
-      res.status(500).send({ statusMessage: "Service is down. Check back later." });
+      return res.status(500).send({ statusMessage: "Service is down. Check back later." });
     }
 
     // Compare passwords
     const isValid = await bcrypt.compare(req.body.password, profile.password);
     if (!isValid) {
       console.log("Genuinely invalid");
-      res
+      return res
         .status(401)
         .send({ statusMessage: "Could not log in. Email or password is incorrect." });
     }
@@ -44,28 +44,24 @@ router.post("/", async (req, res) => {
     const accessToken = generateAccessToken({email: profile.email});
     const [refreshTokenId, refreshToken] = generateRefreshToken({email: profile.email});
     // Decode the refresh token and get the header, which contains the jwtid
-    // jwt.decode should NEVER be used to validate any token
     
     await authCollection.updateOne(
       { _id: req.body.email },
       {
         $set: {
-          refreshJwtId:refreshTokenId 
+          refreshTokenId:refreshTokenId
         },
       }
     );
-    /*res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      path: "/refresh-token",
-    });*/
-    res.send({
+
+    return res.send({
       statusMessage: "Successfully logged in",
       accessToken: accessToken,
       refreshToken: refreshToken
     });
   } catch (error) {
     console.log(error);
-    res
+    return res
       .status(401)
       .send({ statusMessage: "Could not log in. Email or password is incorrect." });
   }

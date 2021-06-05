@@ -4,13 +4,14 @@ const redis = require("redis");
 const { promisify } = require("util");
 const login = require("./login");
 const signup = require("./signup");
+const refresh_token = require("./refresh_token");
 const { initAuth } = require("./auth");
 
 const app = express();
 const port = process.env.PORT || 8080;
 
 const database_url = process.env.MONGODB_SERVICE_SERVICE_HOST || "localhost";
-const database_port = process.env.MONGODB_SERVICE_SERVICE_PORT || 30000; // Use this as the dev port 
+const database_port = process.env.MONGODB_SERVICE_SERVICE_PORT || 30000; // Use this as the dev port
 const database_name = "AR";
 const username = process.env.MONGO_INITDB_ROOT_USERNAME || "username";
 const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
@@ -65,11 +66,12 @@ async function main() {
 
     initAuth();
     app.use(express.json());
-    app.use("/login", login);
     app.use("/signup", signup);
+    app.use("/login", login);
+    app.use("/refresh-token", refresh_token);
     app.listen(port, () => console.log(`Listening on port ${port}`));
   } catch (error) {
-    console.log(error)
+    console.log(error);
     console.log("Could not start auth service");
   }
 }
