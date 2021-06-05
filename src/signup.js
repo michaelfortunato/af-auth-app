@@ -2,10 +2,11 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const redis = require("redis");
+const { time } = require("console");
 const router = express.Router();
 
 const saltRounds = 10;
-const verificationExpirationSeconds = 3600;
+const verificationExpirationSeconds = 10;
 
 const isUserVerified = async (req, res, next) => {
   try {
@@ -23,7 +24,6 @@ const isUserVerified = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -34,7 +34,7 @@ const hashPassword = async (req, res, next) => {
     res.locals.hashedPassword = hashedPassword;
     next();
   } catch (error) {
-    next(error);
+    console.log("sdf")
   }
 };
 const signUpUser = async (req, res, next) => {
@@ -105,6 +105,7 @@ const verifyUser = async (req, res, next) => {
     // Check to make sure the current time minus the tokenCreatedAt entry is less than the expiration time
     const currentTime = new Date().getTime();
     const timeElapsed = (currentTime - res.locals.user.tokenCreatedAt) / 1000; // Convert from ms to s
+    console.log(timeElapsed)
     const isValid =
       timeElapsed < verificationExpirationSeconds && timeElapsed >= 0; // in case the current time is off for some reason
     console.log(currentTime);

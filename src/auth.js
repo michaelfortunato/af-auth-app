@@ -32,7 +32,7 @@ exports.initAuth =() => {
         throw 'Could not initialize auth service'
     }
      
-    console.log("Initialized auth service!🔥");
+    console.log("Initialized auth service! 🔥");
 }
 
 // Make this middlewear
