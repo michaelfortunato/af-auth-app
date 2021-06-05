@@ -6,7 +6,7 @@ const { time } = require("console");
 const router = express.Router();
 
 const saltRounds = 10;
-const verificationExpirationSeconds = 10;
+const verificationExpirationSeconds = 3600 * 24 * 7;
 
 const isUserVerified = async (req, res, next) => {
   try {
@@ -34,7 +34,7 @@ const hashPassword = async (req, res, next) => {
     res.locals.hashedPassword = hashedPassword;
     next();
   } catch (error) {
-    console.log("sdf")
+    console.log("sdf");
   }
 };
 const signUpUser = async (req, res, next) => {
@@ -65,6 +65,7 @@ const signUpUser = async (req, res, next) => {
       { _id: email, email: email },
       {
         _id: email,
+        name: req.body.name,
         email: email,
         password: res.locals.hashedPassword,
         verificationToken: verificationToken,
@@ -105,7 +106,7 @@ const verifyUser = async (req, res, next) => {
     // Check to make sure the current time minus the tokenCreatedAt entry is less than the expiration time
     const currentTime = new Date().getTime();
     const timeElapsed = (currentTime - res.locals.user.tokenCreatedAt) / 1000; // Convert from ms to s
-    console.log(timeElapsed)
+    console.log(timeElapsed);
     const isValid =
       timeElapsed < verificationExpirationSeconds && timeElapsed >= 0; // in case the current time is off for some reason
     console.log(currentTime);
@@ -129,6 +130,7 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
       req.app.locals.database.collection("Verified-Accounts");
     await accountCollection.insertOne({
       _id: res.locals.user.email,
+      name: res.locals.user.name,
       email: res.locals.user.email,
       password: res.locals.user.password,
       role: res.locals.user.role,
@@ -146,7 +148,11 @@ router.post(
   (req, res) => {
     return res
       .status(200)
-      .send({ statusMessage: "Successfully verfied user. Account created." });
+      .send({
+        name: res.locals.user.name,
+        email: res.locals.user.email,
+        statusMessage: "Successfully verfied user. Account created.",
+      });
   }
 );
 

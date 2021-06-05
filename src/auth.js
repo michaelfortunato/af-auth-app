@@ -50,7 +50,7 @@ exports.generateRefreshToken = (contents) => {
     const kid = Math.floor(Math.random() * refreshTokenPrivateKeys.length);
     const privateKey = refreshTokenPrivateKeys[kid] ;
     const algorithm = 'RS256';
-    const token = jwt.sign(contents, privateKey, {jwtid: jwtid, keyid: kid.toString(), expiresIn: '15s', algorithm: algorithm});
+    const token = jwt.sign(contents, privateKey, {jwtid: jwtid, keyid: kid.toString(), expiresIn: '7d', algorithm: algorithm});
     return [jwtid, token];
 }
 
