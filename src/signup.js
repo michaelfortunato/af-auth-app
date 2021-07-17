@@ -3,10 +3,12 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const redis = require("redis");
 const { time } = require("console");
+const { generateAccessToken, generateRefreshToken } = require("./auth");
+const e = require("express");
 const router = express.Router();
 
 const saltRounds = 10;
-const verificationExpirationSeconds = 3600 * 24 * 7;
+const verificationExpirationSeconds = 60 * 30;
 
 const isUserVerified = async (req, res, next) => {
   try {
@@ -17,13 +19,14 @@ const isUserVerified = async (req, res, next) => {
       _id: email,
       email: email,
     });
-    if (accountAlreadyExists) {
+    if (accountAlreadyExists !== null) {
       return res
         .status(401)
         .send({ statusMessage: "Email already registered to Art-Flex" });
     }
     next();
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -34,7 +37,7 @@ const hashPassword = async (req, res, next) => {
     res.locals.hashedPassword = hashedPassword;
     next();
   } catch (error) {
-    console.log("sdf");
+    next(error);
   }
 };
 const signUpUser = async (req, res, next) => {
@@ -87,6 +90,7 @@ const signUpUser = async (req, res, next) => {
 router.post("/new", [isUserVerified, hashPassword, signUpUser], (req, res) => {
   return res.status(200).send(res.locals.body);
 });
+
 const verifyUser = async (req, res, next) => {
   try {
     res.locals.email = req.body.email.toLowerCase();
@@ -99,7 +103,7 @@ const verifyUser = async (req, res, next) => {
     if (!res.locals.user) {
       return res.status(401).send({
         statusMessage:
-          "Could not verify account. Form has not been filled out.",
+          "Could not verify account. Sign up form has not been filled out.",
       });
     }
 
@@ -109,8 +113,6 @@ const verifyUser = async (req, res, next) => {
     console.log(timeElapsed);
     const isValid =
       timeElapsed < verificationExpirationSeconds && timeElapsed >= 0; // in case the current time is off for some reason
-    console.log(currentTime);
-    console.log(res.locals.user.tokenCreatedAt);
     if (!isValid) {
       return res.status(401).send({
         statusMessage:
@@ -119,7 +121,6 @@ const verifyUser = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -137,33 +138,40 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
     });
     next();
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
 
+const refreshTokenForVerifiedUser = (req, res, next) => {
+  const [refreshTokenId, refreshToken] = generateRefreshToken({
+    email: res.locals.user.email,
+  });
+  res.locals.refreshTokenId = refreshTokenId;
+  res.locals.refreshToken = refreshToken;
+  next()
+};
+
 router.post(
   "/verify/:token",
-  [isUserVerified, verifyUser, addUserToVerifiedAccounts],
+  [
+    isUserVerified,
+    verifyUser,
+    addUserToVerifiedAccounts,
+    refreshTokenForVerifiedUser,
+  ],
   (req, res) => {
-    return res
-      .status(200)
-      .send({
-        name: res.locals.user.name,
-        email: res.locals.user.email,
-        statusMessage: "Successfully verfied user. Account created.",
-      });
+    return res.status(200).send({
+      refreshTokenId: res.locals.refreshToken,
+      refreshToken: res.locals.refreshToken,
+      statusMessage: "Successfully verfied user. Account created.",
+    });
   }
 );
 
 router.use((error, req, res, next) => {
-  // If the error code is 11000,
-  // then it is a duplicate key, and the account already exists
-  if (error.code === 11000) {
-    return res.status(500).send({ statusMessage: "Account already exists" });
-  } else {
-    return res.status(500).send({ statusMessage: error.message });
-  }
+  // We need to conceal errors, console.log them
+  console.log(error);
+  return res.sendStatus(500);
 });
 
 module.exports = router;
