@@ -25,43 +25,70 @@ spec:
       labels:
         app: auth-app
     spec:
+      nodeSelector: 
+        eks.amazonaws.com/nodegroup: managed-ng-private-1
       containers:
       - name: auth-app-node-container
-        imagePullPolicy: Never # MUST BE REMOVED IN PRODUCTION
-        image: aws-ar-auth:latest
+        image: 207385250759.dkr.ecr.us-east-2.amazonaws.com/aws-ar-auth:latest
         resources:
           limits:
             memory: "128Mi"
             cpu: "500m"
         env:
-        - name: MONGO_INITDB_ROOT_USERNAME
+        - name: MONGO_PRIMARY_IP_0
           valueFrom:
             secretKeyRef:
-              key: mongo-root-username
-              name: mongodb-secret
-        - name: MONGO_INITDB_ROOT_PASSWORD
+              key: primary-0
+              name: db-locations
+        - name: MONGO_SECONDARY_IP_0
           valueFrom:
             secretKeyRef:
-              key: mongo-root-password
-              name: mongodb-secret
-        - name: REDIS_PASSWORD
+              key: secondary-0
+              name: db-locations
+        - name: MONGO_SECONDARY_IP_1
           valueFrom:
             secretKeyRef:
-              key: redis-password
-              name: redis-password 
+              key: secondary-1
+              name: db-locations
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: auth-app-credentials
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: auth-app-credentials
+        - name: MONGO_AUTH_DB
+          valueFrom:
+            secretKeyRef:
+              key: authDB
+              name: auth-app-credentials
+        - name: REPLICA_SET
+          valueFrom:
+            configMapKeyRef:
+              key: replica-set-name
+              name: db-config
+        - name: PRIMARY_DB
+          valueFrom:
+            secretKeyRef: 
+              key: primary-db
+              name: auth-app-credentials
+        
         ports:
         - containerPort: 8080
         volumeMounts:
-           - name: access-token-secrets 
+           - name: access-tokens 
              mountPath: /etc/secret-volume/jwts/access-tokens
-           - name: refresh-token-secrets 
+           - name: refresh-tokens
              mountPath: /etc/secret-volume/jwts/refresh-tokens
       volumes:
-        - name: access-token-secrets
+        - name: access-tokens
           secret:
-            secretName: access-token-secrets
-        - name: refresh-token-secrets
+            secretName: access-tokens
+        - name: refresh-tokens
           secret:
-            secretName: refresh-token-secrets
+            secretName: refresh-tokens
 
 

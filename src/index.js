@@ -10,15 +10,26 @@ const { initAuth } = require("./auth");
 const app = express();
 const port = process.env.PORT || 8080;
 
-const database_url = process.env.MONGODB_SERVICE_SERVICE_HOST || "localhost";
-const database_port = process.env.MONGODB_SERVICE_SERVICE_PORT || 30000; // Use this as the dev port
-const database_name = "AR";
-const username = process.env.MONGO_INITDB_ROOT_USERNAME || "username";
-const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "password";
+// MongoDB connection string build
+const MONGO_PORT = 27017;
+const MONGO_PRIMARY_IP_0 = process.env.MONGO_PRIMARY_IP_0;
+const MONGO_SECONDARY_IP_0 = process.env.MONGO_SECONDARY_IP_0;
+const MONGO_SECONDARY_IP_1 = process.env.MONGO_SECONDARY_IP_1;
+const MONGO_USERNAME = process.env.MONGO_USERNAME;
+const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
+const MONGO_AUTH_DB = process.env.MONGO_AUTH_DB;
+const REPLICA_SET = process.env.REPLICA_SET;
+const PRIMARY_DB = process.env.PRIMARY_DB
 
-const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1"; // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
+const connectionString =
+  `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PRIMARY_IP_0}:${MONGO_PORT},` +
+  `${MONGO_SECONDARY_IP_0}:${MONGO_PORT},` +
+  `${MONGO_SECONDARY_IP_1}:${MONGO_PORT}` +
+  `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}`;
+
+// "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
+const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1";
 const cache_master_port = process.env.REDIS_MASTER_PORT || 6379;
-
 const cache_slave_url =
   process.env.REDIS_SLAVE_URL ||
   "rc-chart-redis-replicas.default.svc.cluster.local";
@@ -33,10 +44,9 @@ const cache_retry = (options) => {
 
 async function main() {
   try {
-    const mongodb_client = new MongoClient(
-      `mongodb://${username}:${password}@${database_url}:${database_port}`,
-      { useUnifiedTopology: true }
-    );
+    const mongodb_client = new MongoClient(connectionString, {
+      useUnifiedTopology: true,
+    });
     const redis_master_client = redis.createClient({
       host: cache_master_url,
       port: cache_master_port,
@@ -62,7 +72,7 @@ async function main() {
     });
 
     await mongodb_client.connect();
-    app.locals.database = mongodb_client.db(database_name);
+    app.locals.database = mongodb_client.db(PRIMARY_DB);
 
     initAuth();
     app.use(express.json());

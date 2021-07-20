@@ -11,8 +11,8 @@ let refreshTokenPrivateKeys = [];
 
 // Load the tokens 
 exports.initAuth =() => {
-    const accessTokenKeyDir = "../secrets" //"/etc/secret-volume/jwts/access-tokens";
-    const refreshTokenKeyDir = "../secrets" //"/etc/secret-volume/jwts/refresh-tokens";
+    const accessTokenKeyDir = "/etc/secret-volume/jwts/access-tokens";
+    const refreshTokenKeyDir = "/etc/secret-volume/jwts/refresh-tokens";
     fs.readdirSync(accessTokenKeyDir).forEach(file => {
         if (file.split('.').pop() === 'key') {
             accessTokenPrivateKeys.push(fs.readFileSync(accessTokenKeyDir+'/'+file, 'utf-8'));
