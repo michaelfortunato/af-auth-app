@@ -12,14 +12,11 @@ const port = process.env.PORT || 8080;
 
 // MongoDB connection string build
 const MONGO_PORT = 27017;
-const MONGO_PRIMARY_IP_0 = process.env.MONGO_PRIMARY_IP_0;
-//const MONGO_SECONDARY_IP_0 = process.env.MONGO_SECONDARY_IP_0;
-//const MONGO_SECONDARY_IP_1 = process.env.MONGO_SECONDARY_IP_1;
+const MONGO_CLUSTER_ENDPOINT = process.env.MONGO_CLUSTER_ENDPOINT;
 const MONGO_USERNAME = process.env.MONGO_USERNAME;
 const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
 const MONGO_AUTH_DB = process.env.MONGO_AUTH_DB;
 const REPLICA_SET = process.env.REPLICA_SET;
-const PRIMARY_DB = process.env.PRIMARY_DB
 
 /*const connectionString =
   `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PRIMARY_IP_0}:${MONGO_PORT},` +
@@ -28,7 +25,7 @@ const PRIMARY_DB = process.env.PRIMARY_DB
   `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}`;
 */
 const connectionString =
-  `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGOD_CLUSTER_ENDPOINT}:${MONGO_PORT}` + 
+  `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` + 
   `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}`;
 // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
 const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1";
@@ -46,6 +43,7 @@ const cache_retry = (options) => {
 };
 
 async function main() {
+  console.log(connectionString)
   try {
     const mongodb_client = new MongoClient(connectionString, {
       useUnifiedTopology: true,
@@ -77,7 +75,7 @@ async function main() {
     await mongodb_client.connect();
     console.log("Connected to database! 🦄")
     
-    app.locals.database = mongodb_client.db(PRIMARY_DB);
+    app.locals.database = mongodb_client.db(MONGO_AUTH_DB);
 
     initAuth();
     app.use(express.json());

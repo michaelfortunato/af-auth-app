@@ -58,8 +58,8 @@ const signUpUser = async (req, res, next) => {
     const verificationToken = crypto.randomBytes(48).toString("hex");
     signUpCollection.createIndex(
       { verificationToken: 1 },
-      { expireAfterSeconds: verificationExpirationSeconds },
-      { unique: true }
+      { expireAfterSeconds: verificationExpirationSeconds,
+       unique: true }
     );
 
     // Notice the tokenCreatedAt field,
@@ -72,7 +72,7 @@ const signUpUser = async (req, res, next) => {
         email: email,
         password: res.locals.hashedPassword,
         verificationToken: verificationToken,
-        tokenCreatedAt: new Date().getTime(),
+        tokenCreatedAt: new Date.getTime()
       },
       { upsert: true }
     );
