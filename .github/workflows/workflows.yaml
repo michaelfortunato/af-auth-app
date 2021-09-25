@@ -54,17 +54,9 @@ jobs:
         token: ${{secrets.RW_ACCOUNT_WIDE_TOKEN}}
         ref: main
         path: "af-flux-repo"
-    - name: change directory
-      run : |
-        echo $(${{github.workspace}})
-        pwd
-        ls
-        cd ${{env.github.workspace}}
-        pwd
-        ls
     - name: Set image tag
       run: |
-          cd ./af-flux-repo/apps/auth-app
+          cd ./af-flux-repo/apps/base/auth-app
           kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
           cat kustomization.yaml
     - name: Commit kustomization
