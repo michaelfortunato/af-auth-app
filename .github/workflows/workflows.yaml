@@ -57,7 +57,10 @@ jobs:
     - name: change directory
       run : |
         echo $(${{github.workspace}})
+        pwd
+        ls
         cd ${{env.github.workspace}}
+        pwd
         ls
     - name: Set image tag
       run: |
