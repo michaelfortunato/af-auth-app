@@ -41,6 +41,11 @@ jobs:
         # Build and tag the image
         docker build \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./src
+    # Push to AWS
+    - name: Push
+      run: |
+        # Push image to AWS ECR
+        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
     # Set image tag in kustomization
     - name: pull from af-flux
       uses: actions/checkout@v2
@@ -69,8 +74,3 @@ jobs:
           repository: michaelfortunato/af-flux-repo
           branch: main
           force: true 
-    # Push to AWS
-    - name: Push
-      run: |
-        # Push image to AWS ECR
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
