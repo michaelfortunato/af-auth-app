@@ -56,7 +56,7 @@ jobs:
           cat kustomization.yaml
     - name: Commit kustomization
       run: |
-          cd art-flux-repo
+          cd af-flux-repo
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git status
@@ -64,7 +64,7 @@ jobs:
     - name: Push changes to master
       uses: ad-m/github-push-action@master
       with:
-          directory: art-flux-repo
+          directory: af-flux-repo
           github_token: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN}}
           repository: michaelfortunato/af-flux-repo
           branch: main
