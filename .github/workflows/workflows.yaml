@@ -56,8 +56,8 @@ jobs:
         path: "af-flux-repo"
     - name: change directory
       run : |
-        echo $(${{env.GITHUB_WORKSPACE}})
-        cd ${{env.GITHUB_WORKSPACE}}
+        echo $(${{github.workspace}})
+        cd ${{env.github.workspace}}
     - name: Set image tag
       run: |
           cd af-flux-repo/apps/auth-app
