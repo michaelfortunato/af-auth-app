@@ -69,7 +69,6 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
           github_token: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN}}
+          repository: michaelfortunato/af-flux-repo
           branch: main
           force: true 
-          run: |
-            git push
