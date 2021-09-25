@@ -63,6 +63,8 @@ jobs:
           git commit -a -m "$CONTAINER_IMAGE"
     - name: Push changes to master
       uses: ad-m/github-push-action@master
+      run : |
+          cd art-flux-repo
       with:
           github_token: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN}}
           repository: michaelfortunato/af-flux-repo
