@@ -82,6 +82,9 @@ async function main() {
     app.use("/signup", signup);
     app.use("/login", login);
     app.use("/refresh-token", refresh_token);
+    app.get('testy/',  async (req, res) => {
+      console.log("ok")
+    })
     app.listen(port, () => console.log(`Listening on port ${port}`));
   } catch (error) {
     console.log(error);
