@@ -56,7 +56,7 @@ jobs:
         path: "af-flux-repo"
     - name: change directory
       run : |
-        echo ${{env.GITHUB_WORKSPACE}}
+        echo $(${{env.GITHUB_WORKSPACE}})
         cd ${{env.GITHUB_WORKSPACE}}
     - name: Set image tag
       run: |
