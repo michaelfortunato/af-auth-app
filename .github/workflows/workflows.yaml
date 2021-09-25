@@ -54,13 +54,9 @@ jobs:
           cd ./af-flux-repo/apps/base/auth-app
           kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
           cat kustomization.yaml
-    - name: tes
-      run : |
-        ls 
-        cd ../
-        git status
     - name: Commit kustomization
       run: |
+          cd art-flux-repo
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git status
