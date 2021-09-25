@@ -71,3 +71,5 @@ jobs:
           github_token: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN}}
           branch: main
           force: true 
+          run: |
+            git push
