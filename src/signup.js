@@ -72,7 +72,6 @@ const signUpUser = async (req, res, next) => {
         email: email,
         password: res.locals.hashedPassword,
         verificationToken: verificationToken,
-        tokenCreatedAt: new Date.getTime()
       },
       { upsert: true }
     );
