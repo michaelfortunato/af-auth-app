@@ -54,6 +54,10 @@ jobs:
         token: ${{secrets.RW_ACCOUNT_WIDE_TOKEN}}
         ref: main
         path: "af-flux-repo"
+    - name: change directory
+      run : |
+        echo ${{env.GITHUB_WORKSPACE}}
+        cd ${{env.GITHUB_WORKSPACE}}
     - name: Set image tag
       run: |
           cd af-flux-repo/apps/auth-app
