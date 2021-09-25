@@ -63,6 +63,7 @@ jobs:
       run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git status
           git commit -a -m "$CONTAINER_IMAGE"
     - name: Push changes to master
       uses: ad-m/github-push-action@master
