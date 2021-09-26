@@ -61,11 +61,12 @@ const signUpUser = async (req, res, next) => {
       { expireAfterSeconds: verificationExpirationSeconds,
        unique: true }
     );
-
+    
+    console.log("made ite here")
     // Notice the tokenCreatedAt field,
     // its a safe guard in case mongodb forgets to delete the entry after expiration
     await signUpCollection.replaceOne(
-      { _id: email, email: email },
+      { _id: email},
       {
         _id: email,
         name: req.body.name,
