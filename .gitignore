@@ -3,7 +3,7 @@
 *.key.pub
 *.pem
 *.pem.pub
-
+secret.yaml
 
 # Logs
 logs
