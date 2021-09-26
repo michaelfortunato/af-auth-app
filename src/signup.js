@@ -66,13 +66,14 @@ const signUpUser = async (req, res, next) => {
     // Notice the tokenCreatedAt field,
     // its a safe guard in case mongodb forgets to delete the entry after expiration
     await signUpCollection.replaceOne(
-      { _id: email },
+      { _id: email, email: email },
       {
         _id: email,
         name: req.body.name,
         email: email,
         password: res.locals.hashedPassword,
         verificationToken: verificationToken,
+        tokenCreatedAt: new Date().getTime()
       },
       { upsert: true }
     );
