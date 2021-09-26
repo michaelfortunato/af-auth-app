@@ -61,7 +61,6 @@ const signUpUser = async (req, res, next) => {
       { expireAfterSeconds: verificationExpirationSeconds,
        unique: true }
     );
-    console.log(req.body)
     console.log(res.locals)
     console.log("made ite here")
     // Notice the tokenCreatedAt field,

@@ -24,9 +24,10 @@ const REPLICA_SET = process.env.REPLICA_SET;
   `${MONGO_SECONDARY_IP_1}:${MONGO_PORT}` +
   `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}`;
 */
+// retryWrites being false is essential
 const connectionString =
   `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` + 
-  `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}`;
+  `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}&retryWrites=false`;
 // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
 const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1";
 const cache_master_port = process.env.REDIS_MASTER_PORT || 6379;
