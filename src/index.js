@@ -8,15 +8,15 @@ const refresh_token = require("./refresh_token");
 const { initAuth } = require("./auth");
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.NODE_ENV !== "dev" ? 8080 : 8081;
 
 // MongoDB connection string build
 const MONGO_PORT = 27017;
-const MONGO_CLUSTER_ENDPOINT = process.env.MONGO_CLUSTER_ENDPOINT;
-const MONGO_USERNAME = process.env.MONGO_USERNAME;
-const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
-const MONGO_AUTH_DB = process.env.MONGO_AUTH_DB;
-const REPLICA_SET = process.env.REPLICA_SET;
+const MONGO_CLUSTER_ENDPOINT = process.env.NODE_ENV !== "dev" ? process.env.MONGO_CLUSTER_ENDPOINT : "localhost";
+const MONGO_USERNAME = process.env.NODE_ENV !== "dev" ? process.env.MONGO_USERNAME : "authApp";
+const MONGO_PASSWORD = process.env.NODE_ENV !== "dev" ? process.env.MONGO_PASSWORD : "password";
+const MONGO_AUTH_DB = process.env.NODE_ENV !== "dev" ? process.env.MONGO_AUTH_DB : "authDB";
+const REPLICA_SET = process.env.NODE_ENV !== "dev" ? process.env.REPLICA_SET : "none";
 
 /*const connectionString =
   `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PRIMARY_IP_0}:${MONGO_PORT},` +
@@ -27,7 +27,7 @@ const REPLICA_SET = process.env.REPLICA_SET;
 // retryWrites being false is essential
 const connectionString =
   `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` + 
-  `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}&retryWrites=false`;
+  `/?authSource=${MONGO_AUTH_DB}${process.env.NODE_ENV !== "dev" ? "?replicaSet=" + REPLICA_SET : ""}&retryWrites=false`;
 // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
 const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1";
 const cache_master_port = process.env.REDIS_MASTER_PORT || 6379;

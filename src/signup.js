@@ -12,7 +12,7 @@ const verificationExpirationSeconds = 60 * 30;
 
 const isUserVerified = async (req, res, next) => {
   try {
-    email = req.body.email.toLowerCase();
+    const email = req.body.email.toLowerCase();
     const accountCollection =
       req.app.locals.database.collection("Verified-Accounts");
     const accountAlreadyExists = await accountCollection.findOne({
@@ -97,7 +97,7 @@ const verifyUser = async (req, res, next) => {
     res.locals.user = await signUpCollection.findOne({
       _id: res.locals.email,
       email: res.locals.email,
-      verificationToken: req.params.token,
+      verificationToken: req.body.token,
     });
     if (!res.locals.user) {
       return res.status(401).send({
@@ -109,7 +109,6 @@ const verifyUser = async (req, res, next) => {
     // Check to make sure the current time minus the tokenCreatedAt entry is less than the expiration time
     const currentTime = new Date().getTime();
     const timeElapsed = (currentTime - res.locals.user.tokenCreatedAt) / 1000; // Convert from ms to s
-    console.log(timeElapsed);
     const isValid =
       timeElapsed < verificationExpirationSeconds && timeElapsed >= 0; // in case the current time is off for some reason
     if (!isValid) {
@@ -151,7 +150,7 @@ const refreshTokenForVerifiedUser = (req, res, next) => {
 };
 
 router.post(
-  "/verify/:token",
+  "/verify",
   [
     isUserVerified,
     verifyUser,
