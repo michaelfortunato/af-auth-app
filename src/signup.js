@@ -159,7 +159,8 @@ router.post(
   ],
   (req, res) => {
     return res.status(200).send({
-      refreshTokenId: res.locals.refreshToken,
+      name: res.locals.user.name,
+      email: res.locals.user.email,
       refreshToken: res.locals.refreshToken,
       statusMessage: "Successfully verfied user. Account created.",
     });

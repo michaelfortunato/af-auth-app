@@ -18,12 +18,6 @@ const MONGO_PASSWORD = process.env.NODE_ENV !== "dev" ? process.env.MONGO_PASSWO
 const MONGO_AUTH_DB = process.env.NODE_ENV !== "dev" ? process.env.MONGO_AUTH_DB : "authDB";
 const REPLICA_SET = process.env.NODE_ENV !== "dev" ? process.env.REPLICA_SET : "none";
 
-/*const connectionString =
-  `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_PRIMARY_IP_0}:${MONGO_PORT},` +
-  `${MONGO_SECONDARY_IP_0}:${MONGO_PORT},` +
-  `${MONGO_SECONDARY_IP_1}:${MONGO_PORT}` +
-  `/?authSource=${MONGO_AUTH_DB}&replicaSet=${REPLICA_SET}`;
-*/
 // retryWrites being false is essential
 const connectionString =
   `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` + 
