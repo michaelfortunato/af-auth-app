@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
     if (profile === null) {
       console.log(`Profile is null ${req.body.email}`);
       return res
-        .status(500)
+        .status(401)
         .send({ statusMessage: "Could not log in. Email or password is incorrect." });
     }
 
@@ -55,6 +55,8 @@ router.post("/", async (req, res) => {
     );
 
     return res.send({
+      name: profile.name,
+      email: req.body.email,
       statusMessage: "Successfully logged in",
       accessToken: accessToken,
       refreshToken: refreshToken

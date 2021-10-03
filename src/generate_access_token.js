@@ -8,16 +8,12 @@ router.post("/", async (req, res) => {
   try {
     // Check that a refresh-token exists
     const accountsCollection = req.app.locals.database.collection("Verified-Accounts");
-    const refreshToken = req.body.refreshToken;
-    if (refreshToken === null) {
-      return res
-        .status(500)
-        .send({ statusMessage: "Could not log in. Refresh token is empty." });
-    }
+    const { email } = jwt.decode(req.body.refreshToken);
+
     const { header } = jwt.decode(req.body.refreshToken, { complete: true });
     const kid = header.kid;
     const publicKey = refreshTokenPublicKeys[kid];
-    const account = await accountsCollection.findOne({ _id: req.body.email });
+    const account = await accountsCollection.findOne({ _id: email, email: email });
 
     if (account === null) {
       return res
@@ -29,7 +25,7 @@ router.post("/", async (req, res) => {
       return res.sendStatus(401);
     }
 
-    const isVerified = jwt.verify(refreshToken, publicKey, {
+    const isVerified = jwt.verify(req.body.refreshToken, publicKey, {
       jwtid: jwtid,
     });
     if (!isVerified) {
@@ -42,7 +38,7 @@ router.post("/", async (req, res) => {
       statusMessage: "Generated new access token",
     });
   } catch (error) {
-    return res.status(500).send({statusMessage: error.message});
+    return res.status(500).send({ statusMessage: error.message });
   }
 });
 
