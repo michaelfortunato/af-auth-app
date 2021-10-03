@@ -50,7 +50,7 @@ router.post("/", async (req, res) => {
       {
         $set: {
           refreshTokenId:refreshTokenId
-        },
+        }
       }
     );
 

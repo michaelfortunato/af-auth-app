@@ -4,7 +4,7 @@ const redis = require("redis");
 const { promisify } = require("util");
 const login = require("./login");
 const signup = require("./signup");
-const refresh_token = require("./refresh_token");
+const generate_access_token = require("./generate_access_token");
 const { initAuth } = require("./auth");
 
 const app = express();
@@ -76,7 +76,7 @@ async function main() {
     app.use(express.json());
     app.use("/signup", signup);
     app.use("/login", login);
-    app.use("/refresh-token", refresh_token);
+    app.use("/generate_access_token", generate_access_token);
     app.get('/testy',  async (req, res) => {
       console.log("ok")
     })

@@ -14,7 +14,6 @@ router.post("/", async (req, res) => {
         .status(500)
         .send({ statusMessage: "Could not log in. Refresh token is empty." });
     }
-    const refreshTokenKeyDir = "../secrets"; //"/etc/secret-volume/jwts/refresh-tokens";
     const { header } = jwt.decode(req.body.refreshToken, { complete: true });
     const kid = header.kid;
     const publicKey = refreshTokenPublicKeys[kid];

@@ -123,23 +123,6 @@ const verifyUser = async (req, res, next) => {
   }
 };
 
-const addUserToVerifiedAccounts = async (req, res, next) => {
-  try {
-    const accountCollection =
-      req.app.locals.database.collection("Verified-Accounts");
-    await accountCollection.insertOne({
-      _id: res.locals.user.email,
-      name: res.locals.user.name,
-      email: res.locals.user.email,
-      password: res.locals.user.password,
-      role: res.locals.user.role,
-    });
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
 const refreshTokenForVerifiedUser = (req, res, next) => {
   const [refreshTokenId, refreshToken] = generateRefreshToken({
     email: res.locals.user.email,
@@ -149,13 +132,32 @@ const refreshTokenForVerifiedUser = (req, res, next) => {
   next()
 };
 
+
+const addUserToVerifiedAccounts = async (req, res, next) => {
+  try {
+    const accountCollection =
+      req.app.locals.database.collection("Verified-Accounts");
+    await accountCollection.insertOne({
+      _id: res.locals.user.email,
+      name: res.locals.user.name,
+      email: res.locals.user.email,
+      password: res.locals.user.password,
+      refreshTokenId: res.locals.refreshTokenId,
+      role: res.locals.user.role,
+    });
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.post(
   "/verify",
   [
     isUserVerified,
     verifyUser,
-    addUserToVerifiedAccounts,
     refreshTokenForVerifiedUser,
+    addUserToVerifiedAccounts
   ],
   (req, res) => {
     return res.status(200).send({
