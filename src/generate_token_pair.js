@@ -1,5 +1,5 @@
 const express = require("express");
-const { generateAccessToken, refreshTokenPublicKeys } = require("./auth");
+const { generateAccessToken, generateRefreshToken, refreshTokenPublicKeys } = require("./auth");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
@@ -7,15 +7,18 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   try {
     // Check that a refresh-token exists
-    const accountsCollection =
+    const authCollection =
       req.app.locals.database.collection("Verified-Accounts");
 
-    const { header, payload: {email} } = jwt.decode(req.body.refreshToken, {
+    const {
+      header,
+      payload: { email },
+    } = jwt.decode(req.body.refreshToken, {
       complete: true,
     });
     const kid = header.kid;
     const publicKey = refreshTokenPublicKeys[kid];
-    const account = await accountsCollection.findOne({
+    const account = await authCollection.findOne({
       _id: email,
       email: email,
     });
@@ -31,15 +34,28 @@ router.post("/", async (req, res) => {
     }
     const isVerified = jwt.verify(req.body.refreshToken, publicKey, {
       jwtid: jwtid,
-      algorithm: "RS256"
+      algorithm: "RS256",
     });
     if (!isVerified) {
       return res.sendStatus(401);
     }
 
-    const accessToken = generateAccessToken({ email: req.body.email });
+    const accessToken = generateAccessToken({ email: account.email });
+    const [refreshTokenId, refreshToken] = generateRefreshToken({
+      email: account.email,
+    });
+    // Decode the refresh token and get the header, which contains the jwtid
+    await authCollection.updateOne(
+      { _id: account.email },
+      {
+        $set: {
+          refreshTokenId: refreshTokenId,
+        },
+      }
+    );
     return res.status(200).send({
       accessToken: accessToken,
+      refreshToken: refreshToken,
       statusMessage: "Generated new access token",
     });
   } catch (error) {
