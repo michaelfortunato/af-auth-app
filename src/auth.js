@@ -13,14 +13,14 @@ const refreshTokenKeyDir = process.env.NODE_ENV !== "dev" ? "/etc/secret-volume/
 // Load the tokens 
 exports.initAuth =() => {
     fs.readdirSync(accessTokenKeyDir).forEach(file => {
-        if (file.split('.').pop() === 'key') {
+        if (file.split('.').pop() === 'pem') {
             accessTokenPrivateKeys.push(fs.readFileSync(accessTokenKeyDir+'/'+file, 'utf-8'));
         } else if (file.split(".").pop() === "pub") {
            accessTokenPublicKeys.push(fs.readFileSync(accessTokenKeyDir+"/"+file, "utf-8"));
         }
     });
     fs.readdirSync(refreshTokenKeyDir).forEach(file => {
-        if (file.split('.').pop() === 'key') {
+        if (file.split('.').pop() === 'pem') {
             refreshTokenPrivateKeys.push(fs.readFileSync(refreshTokenKeyDir+'/'+file, 'utf-8'));
         } else if (file.split(".").pop() === "pub") {
           refreshTokenPublicKeys.push(fs.readFileSync(refreshTokenKeyDir+"/"+file, "utf-8"));
