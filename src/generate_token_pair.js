@@ -1,5 +1,9 @@
 const express = require("express");
-const { generateAccessToken, generateRefreshToken, refreshTokenPublicKeys } = require("./auth");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  refreshTokenPublicKeys,
+} = require("./auth");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
@@ -11,12 +15,12 @@ router.post("/", async (req, res) => {
       req.app.locals.database.collection("Verified-Accounts");
 
     const {
-      header,
-      payload: { email },
+      header: { kid },
+      payload: { email }
     } = jwt.decode(req.body.refreshToken, {
       complete: true,
     });
-    const kid = header.kid;
+    // Decode the refresh token and get the header, which contains the jwtid
     const publicKey = refreshTokenPublicKeys[kid];
     const account = await authCollection.findOne({
       _id: email,
@@ -25,26 +29,24 @@ router.post("/", async (req, res) => {
 
     if (account === null) {
       return res
-        .status(500)
+        .status(401)
         .send({ statusMessage: "Could not log in. Account does not exist." });
     }
+    // Verify the jwt and make sure its id matches the one we have stored in the db
     const jwtid = account.refreshTokenId;
-    if (jwtid === null) {
-      return res.sendStatus(401);
-    }
-    const isVerified = jwt.verify(req.body.refreshToken, publicKey, {
+    jwt.verify(req.body.refreshToken, publicKey, {
       jwtid: jwtid,
       algorithm: "RS256",
     });
-    if (!isVerified) {
-      return res.sendStatus(401);
-    }
 
+    // On successful verification, (no throw), generate the new tokens
     const accessToken = generateAccessToken({ email: account.email });
     const [refreshTokenId, refreshToken] = generateRefreshToken({
       email: account.email,
     });
-    // Decode the refresh token and get the header, which contains the jwtid
+
+    // Update the db to account for the new refreshTokenId, 
+    // >>> this is what auth0 calls 'smart' refresh-key rotation
     await authCollection.updateOne(
       { _id: account.email },
       {
@@ -56,10 +58,11 @@ router.post("/", async (req, res) => {
     return res.status(200).send({
       accessToken: accessToken,
       refreshToken: refreshToken,
-      statusMessage: "Generated new access token",
+      statusMessage: "Generated new access and refresh tokens",
     });
   } catch (error) {
-    return res.status(500).send({ statusMessage: error.message });
+    console.log(error)
+    return res.status(401).send({ statusMessage: error.message });
   }
 });
 
