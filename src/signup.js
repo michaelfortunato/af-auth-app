@@ -102,7 +102,7 @@ const verifyUser = async (req, res, next) => {
     if (!res.locals.user) {
       return res.status(401).send({
         statusMessage:
-          "Could not verify account. Sign up form has not been filled out.",
+          "Could not verify account. Sign up form has not been filled out or verification token is incorrect.",
       });
     }
 
