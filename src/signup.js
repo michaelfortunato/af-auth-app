@@ -22,7 +22,7 @@ const isUserVerified = async (req, res, next) => {
     if (accountAlreadyExists !== null) {
       return res
         .status(401)
-        .send({ statusMessage: "Email already registered to Art-Flex" });
+        .send({ statusMessage: "Email already registered to Art-Flex." });
     }
     next();
   } catch (error) {
@@ -86,10 +86,6 @@ const signUpUser = async (req, res, next) => {
   }
 };
 
-router.post("/new", [isUserVerified, hashPassword, signUpUser], (req, res) => {
-  return res.status(200).send(res.locals.body);
-});
-
 const verifyUser = async (req, res, next) => {
   try {
     res.locals.email = req.body.email.toLowerCase();
@@ -114,7 +110,7 @@ const verifyUser = async (req, res, next) => {
     if (!isValid) {
       return res.status(401).send({
         statusMessage:
-          "Could not verify account. Verification token is expired",
+          "Could not verify account. Verification token is expired.",
       });
     }
     next();
@@ -150,6 +146,10 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
     next(error);
   }
 };
+
+router.post("/new", [isUserVerified, hashPassword, signUpUser], (req, res) => {
+  return res.status(200).send(res.locals.body);
+});
 
 router.post(
   "/verify",
