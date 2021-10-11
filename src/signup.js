@@ -121,6 +121,7 @@ const verifyUser = async (req, res, next) => {
 
 const refreshTokenForVerifiedUser = (req, res, next) => {
   const [refreshTokenId, refreshToken] = generateRefreshToken({
+    name: res.locals.user.name,
     email: res.locals.user.email,
   });
   res.locals.refreshTokenId = refreshTokenId;

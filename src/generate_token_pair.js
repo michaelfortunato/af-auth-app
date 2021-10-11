@@ -40,12 +40,16 @@ router.post("/", async (req, res) => {
     });
 
     // On successful verification, (no throw), generate the new tokens
-    const accessToken = generateAccessToken({ email: account.email });
+    const accessToken = generateAccessToken({
+      name: account.name,
+      email: account.email,
+    });
     const [refreshTokenId, refreshToken] = generateRefreshToken({
+      name: account.name,
       email: account.email,
     });
 
-    // Update the db to account for the new refreshTokenId, 
+    // Update the db to account for the new refreshTokenId,
     // >>> this is what auth0 calls 'smart' refresh-key rotation
     await authCollection.updateOne(
       { _id: account.email },
@@ -61,7 +65,7 @@ router.post("/", async (req, res) => {
       statusMessage: "Generated new access and refresh tokens",
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(401).send({ statusMessage: error.message });
   }
 });

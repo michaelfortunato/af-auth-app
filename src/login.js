@@ -17,7 +17,9 @@ router.post("/", async (req, res) => {
       console.log(`Profile is null ${req.body.email}`);
       return res
         .status(401)
-        .send({ statusMessage: "Could not log in. Email or password is incorrect." });
+        .send({
+          statusMessage: "Could not log in. Email or password is incorrect.",
+        });
     }
 
     // If more than one profiles exist,
@@ -29,7 +31,9 @@ router.post("/", async (req, res) => {
       console.log(profile);
       console.log(isNext);
       console.log(profileCursor);
-      return res.status(500).send({ statusMessage: "Service is down. Check back later." });
+      return res
+        .status(500)
+        .send({ statusMessage: "Service is down. Check back later." });
     }
 
     // Compare passwords
@@ -38,19 +42,27 @@ router.post("/", async (req, res) => {
       console.log("Genuinely invalid");
       return res
         .status(401)
-        .send({ statusMessage: "Could not log in. Email or password is incorrect." });
+        .send({
+          statusMessage: "Could not log in. Email or password is incorrect.",
+        });
     }
 
-    const accessToken = generateAccessToken({email: profile.email});
-    const [refreshTokenId, refreshToken] = generateRefreshToken({email: profile.email});
+    const accessToken = generateAccessToken({
+      name: profile.name,
+      email: profile.email,
+    });
+    const [refreshTokenId, refreshToken] = generateRefreshToken({
+      name: profile.name,
+      email: profile.email,
+    });
     // Decode the refresh token and get the header, which contains the jwtid
-    
+
     await authCollection.updateOne(
       { _id: req.body.email },
       {
         $set: {
-          refreshTokenId:refreshTokenId
-        }
+          refreshTokenId: refreshTokenId,
+        },
       }
     );
 
@@ -59,13 +71,15 @@ router.post("/", async (req, res) => {
       email: req.body.email,
       statusMessage: "Successfully logged in",
       accessToken: accessToken,
-      refreshToken: refreshToken
+      refreshToken: refreshToken,
     });
   } catch (error) {
     console.log(error);
     return res
       .status(401)
-      .send({ statusMessage: "Could not log in. Email or password is incorrect." });
+      .send({
+        statusMessage: "Could not log in. Email or password is incorrect.",
+      });
   }
 });
 
