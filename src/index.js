@@ -2,8 +2,9 @@ const express = require("express");
 const { MongoClient } = require("mongodb");
 const redis = require("redis");
 const { promisify } = require("util");
-const login = require("./login");
 const signup = require("./signup");
+const login = require("./login");
+const logout = require("./logout")
 const generate_access_token = require("./generate_token_pair");
 const { initAuth } = require("./auth");
 
@@ -76,6 +77,7 @@ async function main() {
     app.use(express.json());
     app.use("/signup", signup);
     app.use("/login", login);
+    app.use('/logout', logout);
     app.use("/generate_token_pair", generate_access_token);
     app.get('/testy',  async (req, res) => {
       console.log("ok")
