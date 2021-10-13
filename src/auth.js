@@ -8,8 +8,8 @@ let accessTokenPublicKeys = [];
 let accessTokenPrivateKeys = [];
 let refreshTokenPublicKeys = [];
 let refreshTokenPrivateKeys = [];
-const accessTokenKeyDir = process.env.NODE_ENV !== "dev" ? "/etc/secret-volume/jwts/access-tokens" : process.cwd()+ "/../secrets";
-const refreshTokenKeyDir = process.env.NODE_ENV !== "dev" ? "/etc/secret-volume/jwts/refresh-tokens" : process.cwd() + "/../secrets";
+const accessTokenKeyDir = process.env.NODE_ENV !== "development" ? "/etc/secret-volume/jwts/access-tokens" : process.cwd()+ "/../secrets";
+const refreshTokenKeyDir = process.env.NODE_ENV !== "development" ? "/etc/secret-volume/jwts/refresh-tokens" : process.cwd() + "/../secrets";
 // Load the tokens 
 exports.initAuth =() => {
     fs.readdirSync(accessTokenKeyDir).forEach(file => {

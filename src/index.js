@@ -9,27 +9,27 @@ const generate_access_token = require("./generate_token_pair");
 const { initAuth } = require("./auth");
 
 const app = express();
-const port = process.env.NODE_ENV !== "dev" ? 8080 : 8081;
+const port = process.env.NODE_ENV !== "development" ? 8080 : 8081;
 
 // MongoDB connection string build
 const MONGO_PORT = 27017;
 const MONGO_CLUSTER_ENDPOINT =
-  process.env.NODE_ENV !== "dev"
+  process.env.NODE_ENV !== "development"
     ? process.env.MONGO_CLUSTER_ENDPOINT
     : "localhost";
 const MONGO_USERNAME =
-  process.env.NODE_ENV !== "dev" ? process.env.MONGO_USERNAME : "authApp";
+  process.env.NODE_ENV !== "development" ? process.env.MONGO_USERNAME : "authApp";
 const MONGO_PASSWORD =
-  process.env.NODE_ENV !== "dev" ? process.env.MONGO_PASSWORD : "password";
+  process.env.NODE_ENV !== "development" ? process.env.MONGO_PASSWORD : "password";
 const MONGO_AUTH_DB =
-  process.env.NODE_ENV !== "dev" ? process.env.MONGO_AUTH_DB : "authDB";
+  process.env.NODE_ENV !== "development" ? process.env.MONGO_AUTH_DB : "authDB";
 const REPLICA_SET =
-  process.env.NODE_ENV !== "dev" ? process.env.REPLICA_SET : "none";
+  process.env.NODE_ENV !== "development" ? process.env.REPLICA_SET : "none";
 
 // retryWrites being false is essential
 
 const connectionString =
-  process.env.NODE_ENV !== "dev"
+  process.env.NODE_ENV !== "development"
     ? `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
       `/?authSource=admin&replicaSet=${REPLICA_SET}&retryWrites=false`
     : `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
