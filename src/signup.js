@@ -26,6 +26,7 @@ const isUserVerified = async (req, res, next) => {
     }
     next();
   } catch (error) {
+    console.log("isUserVerifiedError")
     console.log(error);
     next(error);
   }
@@ -37,6 +38,7 @@ const hashPassword = async (req, res, next) => {
     res.locals.hashedPassword = hashedPassword;
     next();
   } catch (error) {
+    console.log("hassPasswordError")
     next(error);
   }
 };
@@ -81,6 +83,7 @@ const signUpUser = async (req, res, next) => {
     };
     next();
   } catch (error) {
+    console.log("signUpUserError")
     next(error);
   }
 };
