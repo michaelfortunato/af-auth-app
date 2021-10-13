@@ -79,7 +79,7 @@ async function main() {
       console.log("Could not connect to cache");
     });
 
-    await mongodb_client.connect();
+    app.locals.connected_mongo_client = await mongodb_client.connect();
     console.log("Connected to database! 🦄");
 
     app.locals.database = mongodb_client.db(MONGO_AUTH_DB);

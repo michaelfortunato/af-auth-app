@@ -58,8 +58,7 @@ const signUpUser = async (req, res, next) => {
     const verificationToken = crypto.randomBytes(48).toString("hex");
     signUpCollection.createIndex(
       { verificationToken: 1 },
-      { expireAfterSeconds: verificationExpirationSeconds,
-       unique: true }
+      { expireAfterSeconds: verificationExpirationSeconds, unique: true }
     );
     // Notice the tokenCreatedAt field,
     // its a safe guard in case mongodb forgets to delete the entry after expiration
@@ -71,7 +70,7 @@ const signUpUser = async (req, res, next) => {
         email: email,
         password: res.locals.hashedPassword,
         verificationToken: verificationToken,
-        tokenCreatedAt: new Date().getTime()
+        tokenCreatedAt: new Date().getTime(),
       },
       { upsert: true }
     );
@@ -126,9 +125,8 @@ const refreshTokenForVerifiedUser = (req, res, next) => {
   });
   res.locals.refreshTokenId = refreshTokenId;
   res.locals.refreshToken = refreshToken;
-  next()
+  next();
 };
-
 
 const addUserToVerifiedAccounts = async (req, res, next) => {
   try {
@@ -147,6 +145,24 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
     next(error);
   }
 };
+const addUserToAccountsDB = async (req, res, next) => {
+  try {
+    console.log(req.app.locals.connected_mongo_client)
+    const accountCollection = req.app.locals.connected_mongo_client
+      .db(process.env.MONGO_ACCOUNTAPP_DB)
+      .collection("accounts");
+    
+    await accountCollection.insertOne({
+      _id: res.locals.user.email,
+      name: res.locals.user.name,
+      email: res.locals.user.email,
+      role: res.locals.user.role,
+    });
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 router.post("/new", [isUserVerified, hashPassword, signUpUser], (req, res) => {
   return res.status(200).send(res.locals.body);
@@ -158,7 +174,8 @@ router.post(
     isUserVerified,
     verifyUser,
     refreshTokenForVerifiedUser,
-    addUserToVerifiedAccounts
+    addUserToVerifiedAccounts,
+    addUserToAccountsDB,
   ],
   (req, res) => {
     return res.status(200).send({
