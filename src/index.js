@@ -4,7 +4,7 @@ const redis = require("redis");
 const { promisify } = require("util");
 const signup = require("./signup");
 const login = require("./login");
-const logout = require("./logout")
+const logout = require("./logout");
 const generate_access_token = require("./generate_token_pair");
 const { initAuth } = require("./auth");
 
@@ -13,16 +13,27 @@ const port = process.env.NODE_ENV !== "dev" ? 8080 : 8081;
 
 // MongoDB connection string build
 const MONGO_PORT = 27017;
-const MONGO_CLUSTER_ENDPOINT = process.env.NODE_ENV !== "dev" ? process.env.MONGO_CLUSTER_ENDPOINT : "localhost";
-const MONGO_USERNAME = process.env.NODE_ENV !== "dev" ? process.env.MONGO_USERNAME : "authApp";
-const MONGO_PASSWORD = process.env.NODE_ENV !== "dev" ? process.env.MONGO_PASSWORD : "password";
-const MONGO_AUTH_DB = process.env.NODE_ENV !== "dev" ? process.env.MONGO_AUTH_DB : "authDB";
-const REPLICA_SET = process.env.NODE_ENV !== "dev" ? process.env.REPLICA_SET : "none";
+const MONGO_CLUSTER_ENDPOINT =
+  process.env.NODE_ENV !== "dev"
+    ? process.env.MONGO_CLUSTER_ENDPOINT
+    : "localhost";
+const MONGO_USERNAME =
+  process.env.NODE_ENV !== "dev" ? process.env.MONGO_USERNAME : "authApp";
+const MONGO_PASSWORD =
+  process.env.NODE_ENV !== "dev" ? process.env.MONGO_PASSWORD : "password";
+const MONGO_AUTH_DB =
+  process.env.NODE_ENV !== "dev" ? process.env.MONGO_AUTH_DB : "authDB";
+const REPLICA_SET =
+  process.env.NODE_ENV !== "dev" ? process.env.REPLICA_SET : "none";
 
 // retryWrites being false is essential
+
 const connectionString =
-  `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` + 
-  `/?authSource=${MONGO_AUTH_DB}${process.env.NODE_ENV !== "dev" ? "?replicaSet=" + REPLICA_SET : ""}&retryWrites=false`;
+  process.env.NODE_ENV !== "dev"
+    ? `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
+      `/?authSource=admin&replicaSet=${REPLICA_SET}&retryWrites=false`
+    : `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
+      `/?authSource=admin&retryWrites=false`;
 // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
 const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1";
 const cache_master_port = process.env.REDIS_MASTER_PORT || 6379;
@@ -39,7 +50,7 @@ const cache_retry = (options) => {
 };
 
 async function main() {
-  console.log(connectionString)
+  console.log(connectionString);
   try {
     const mongodb_client = new MongoClient(connectionString, {
       useUnifiedTopology: true,
@@ -69,19 +80,19 @@ async function main() {
     });
 
     await mongodb_client.connect();
-    console.log("Connected to database! 🦄")
-    
+    console.log("Connected to database! 🦄");
+
     app.locals.database = mongodb_client.db(MONGO_AUTH_DB);
 
     initAuth();
     app.use(express.json());
     app.use("/signup", signup);
     app.use("/login", login);
-    app.use('/logout', logout);
+    app.use("/logout", logout);
     app.use("/generate_token_pair", generate_access_token);
-    app.get('/testy',  async (req, res) => {
-      console.log("ok")
-    })
+    app.get("/testy", async (req, res) => {
+      console.log("ok");
+    });
     app.listen(port, () => console.log(`Listening on port ${port}`));
   } catch (error) {
     console.log(error);
