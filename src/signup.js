@@ -150,7 +150,6 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
 };
 const addUserToAccountsDB = async (req, res, next) => {
   try {
-    console.log(req.app.locals.connected_mongo_client)
     const accountCollection = req.app.locals.connected_mongo_client
       .db(process.env.MONGO_ACCOUNTAPP_DB)
       .collection("accounts");
