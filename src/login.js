@@ -15,11 +15,9 @@ router.post("/", async (req, res) => {
     // If not profile exists, exit.
     if (profile === null) {
       console.log(`Profile is null ${req.body.email}`);
-      return res
-        .status(401)
-        .send({
-          statusMessage: "Could not log in. Email or password is incorrect.",
-        });
+      return res.status(401).send({
+        statusMessage: "Could not log in. Email or password is incorrect.",
+      });
     }
 
     // If more than one profiles exist,
@@ -40,11 +38,9 @@ router.post("/", async (req, res) => {
     const isValid = await bcrypt.compare(req.body.password, profile.password);
     if (!isValid) {
       console.log("Genuinely invalid");
-      return res
-        .status(401)
-        .send({
-          statusMessage: "Could not log in. Email or password is incorrect.",
-        });
+      return res.status(401).send({
+        statusMessage: "Could not log in. Email or password is incorrect.",
+      });
     }
 
     const accessToken = generateAccessToken({
@@ -75,11 +71,9 @@ router.post("/", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res
-      .status(401)
-      .send({
-        statusMessage: "Could not log in. Email or password is incorrect.",
-      });
+    return res.status(401).send({
+      statusMessage: "Could not log in. Email or password is incorrect.",
+    });
   }
 });
 

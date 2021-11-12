@@ -9,39 +9,35 @@ const generate_access_token = require("./generate_token_pair");
 const { initAuth } = require("./auth");
 
 const app = express();
-const port = process.env.NODE_ENV !== "development" ? 8080 : 8081;
+const port = process.env.AUTH_APP_SERVICE_SERVICE_PORT;
+// process.env.NODE_ENV !== "development" ? 8080 : 8081;
 
 // MongoDB connection string build
+const MONGO_CLUSTER_ENDPOINT = process.env.MONGO_CLUSTER_ENDPOINT;
+
 const MONGO_PORT = 27017;
-const MONGO_CLUSTER_ENDPOINT =
-  process.env.NODE_ENV !== "development"
-    ? process.env.MONGO_CLUSTER_ENDPOINT
-    : "localhost";
-const MONGO_USERNAME =
-  process.env.NODE_ENV !== "development" ? process.env.MONGO_USERNAME : "authApp";
-const MONGO_PASSWORD =
-  process.env.NODE_ENV !== "development" ? process.env.MONGO_PASSWORD : "password";
-const MONGO_AUTH_DB =
-  process.env.NODE_ENV !== "development" ? process.env.MONGO_AUTH_DB : "authDB";
-const REPLICA_SET =
-  process.env.NODE_ENV !== "development" ? process.env.REPLICA_SET : "none";
+const MONGO_USERNAME = process.env.MONGO_AUTH_APP_USERNAME;
+//  process.env.NODE_ENV !== "development" ? process.env.MONGO_USERNAME : "authApp";
+
+const MONGO_PASSWORD = process.env.MONGO_AUTH_APP_PASSWORD;
+//  process.env.NODE_ENV !== "development" ? process.env.MONGO_PASSWORD : "password";
+const MONGO_AUTH_DB = process.env.MONGO_AUTH_DB;
+
+const REPLICA_SET_QUERY_PARAMETER =
+  process.env.REPLICA_SET !== undefined ? `&replicaSet=${REPLICA_SET}` : "";
+//  process.env.NODE_ENV !== "development" ? process.env.REPLICA_SET : "none";
 
 // retryWrites being false is essential
 
 const connectionString =
-  process.env.NODE_ENV !== "development"
-    ? `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
-      `/?authSource=admin&replicaSet=${REPLICA_SET}&retryWrites=false`
-    : `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
-      `/?authSource=admin&retryWrites=false`;
+  `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
+  `/?authSource=admin&${REPLICA_SET_QUERY_PARAMETER}&retryWrites=false`;
 // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
-const cache_master_url = process.env.REDIS_MASTER_HOST || "127.0.0.1";
-const cache_master_port = process.env.REDIS_MASTER_PORT || 6379;
-const cache_slave_url =
-  process.env.REDIS_SLAVE_URL ||
-  "rc-chart-redis-replicas.default.svc.cluster.local";
-const cache_slave_port = process.env.REDIS_SLAVE_PORT || 6379;
-const cache_password = "username";
+const cache_master_url = process.env.REDIS_MASTER_HOST;
+const cache_master_port = process.env.REDIS_MASTER_PORT;
+const cache_slave_url = process.env.REDIS_SLAVE_HOST;
+const cache_slave_port = process.env.REDIS_SLAVE_PORT;
+const cache_password = process.env.REDIS_PASSWORD;
 
 const cache_retry = (options) => {
   if (options.error) {

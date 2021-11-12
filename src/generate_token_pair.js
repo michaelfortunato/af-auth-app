@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
 
     const {
       header: { kid },
-      payload: { email }
+      payload: { email },
     } = jwt.decode(req.body.refreshToken, {
       complete: true,
     });

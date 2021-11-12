@@ -8,13 +8,14 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci --only=production
 # If you are building your code for production
 # RUN npm ci --only=production
-COPY package*.json ./
 
 COPY . .
 
+RUN npm run build
+
 # Below expose is really for convenience. I think ...
 EXPOSE 8080
-CMD ["node", "index.js"]
+CMD ["node", "./dist/index.js"]

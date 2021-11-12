@@ -1,16 +1,15 @@
-
 # build.yml
 on:
   ##pull_request:
-    ##paths:
-    ##- "**/*.yml"
-    ##- "**/*.html"
-  push
+  ##paths:
+  ##- "**/*.yml"
+  ##- "**/*.html"
+  push:
     #paths:
     #- "**/*.yml"
     #- "**/*.html"
-    #branches:         # array of glob patterns matching against refs/heads. Optional; defaults to all
-    #- master          # triggers on pushes that contain changes in master
+    branches: # array of glob patterns matching against refs/heads. Optional; defaults to all
+      - main # triggers on pushes that contain changes in master
 
 name: Build and Push an Image to ECR
 # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
@@ -26,51 +25,50 @@ jobs:
     name: Build and deploy
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@master
 
-    - name: Checkout
-      uses: actions/checkout@master
+      # Add steps here like linting, testing, minification, etc.
 
-    # Add steps here like linting, testing, minification, etc.
-      
-    - name: Setup ECR
-      run: |
-        # Login to AWS ECR
-        aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.us-east-2.amazonaws.com
-    - name: Build and tag the image
-      run: |
-        # Build and tag the image
-        docker build \
-          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./src
-    # Push to AWS
-    - name: Push
-      run: |
-        # Push image to AWS ECR
-        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
-    # Set image tag in kustomization
-    - name: pull from af-flux
-      uses: actions/checkout@v2
-      with:
-        repository: michaelfortunato/af-flux-repo
-        token: ${{secrets.RW_ACCOUNT_WIDE_TOKEN}}
-        ref: main
-        path: "af-flux-repo"
-    - name: Set image tag
-      run: |
+      - name: Setup ECR
+        run: |
+          # Login to AWS ECR
+          aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.us-east-2.amazonaws.com
+      - name: Build and tag the image
+        run: |
+          # Build and tag the image
+          docker build \
+            -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./src
+      # Push to AWS
+      - name: Push
+        run: |
+          # Push image to AWS ECR
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+      # Set image tag in kustomization
+      - name: pull from af-flux
+        uses: actions/checkout@v2
+        with:
+          repository: michaelfortunato/af-flux-repo
+          token: ${{secrets.RW_ACCOUNT_WIDE_TOKEN}}
+          ref: main
+          path: "af-flux-repo"
+      - name: Set image tag
+        run: |
           cd ./af-flux-repo/apps/base/auth-app
           kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
           cat kustomization.yaml
-    - name: Commit kustomization
-      run: |
+      - name: Commit kustomization
+        run: |
           cd af-flux-repo
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git status
           git commit -a -m "$CONTAINER_IMAGE"
-    - name: Push changes to master
-      uses: ad-m/github-push-action@master
-      with:
+      - name: Push changes to master
+        uses: ad-m/github-push-action@master
+        with:
           directory: af-flux-repo
           github_token: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN}}
           repository: michaelfortunato/af-flux-repo
           branch: main
-          force: true 
+          force: true

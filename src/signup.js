@@ -26,7 +26,7 @@ const isUserVerified = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.log("isUserVerifiedError")
+    console.log("isUserVerifiedError");
     console.log(error);
     next(error);
   }
@@ -38,7 +38,7 @@ const hashPassword = async (req, res, next) => {
     res.locals.hashedPassword = hashedPassword;
     next();
   } catch (error) {
-    console.log("hassPasswordError")
+    console.log("hassPasswordError");
     next(error);
   }
 };
@@ -83,7 +83,7 @@ const signUpUser = async (req, res, next) => {
     };
     next();
   } catch (error) {
-    console.log("signUpUserError")
+    console.log("signUpUserError");
     next(error);
   }
 };
@@ -151,9 +151,9 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
 const addUserToAccountsDB = async (req, res, next) => {
   try {
     const accountCollection = req.app.locals.connected_mongo_client
-      .db(process.env.MONGO_ACCOUNTAPP_DB)
+      .db(process.env.MONGO_ACCOUNT_DB)
       .collection("accounts");
-    
+
     await accountCollection.insertOne({
       _id: res.locals.user.email,
       name: res.locals.user.name,

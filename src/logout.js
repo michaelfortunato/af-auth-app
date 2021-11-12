@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const { refreshTokenPublicKeys } = require("./auth");
 const router = express.Router();
 
-
 /*
 This route assumes one thing: You have a valid accessToken.
 We should verify the refreshToken to make sure this operation is permitted.
@@ -44,14 +43,12 @@ router.post("/", async (req, res) => {
       },
       { $set: { refreshTokenId: null } }
     );
-    return res
-      .status(200)
-      .send({
-        statusMessage: `Logged out user with id (${email}) and name (${name}).`,
-      });
+    return res.status(200).send({
+      statusMessage: `Logged out user with id (${email}) and name (${name}).`,
+    });
   } catch (error) {
-	  console.log(error)
-	  return res.status(500).send({statusMessage: 'Could not sign user out.'})
+    console.log(error);
+    return res.status(500).send({ statusMessage: "Could not sign user out." });
   }
 });
 
