@@ -1,13 +1,15 @@
-const express = require("express");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { generateAccessToken, generateRefreshToken } = require("./auth");
+/* eslint-disable import/no-unresolved */
+/* eslint-disable import/extensions */
+import express from "express";
+import bcrypt from "bcrypt";
+import { generateAccessToken, generateRefreshToken } from "./auth";
+import { MONGO_AUTH_DB } from "./secrets";
 
 const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const database = req.app.locals.database;
+    const database = req.app.locals.mongoDBClient.db(MONGO_AUTH_DB);
     const authCollection = database.collection("Verified-Accounts");
     const profileCursor = await authCollection.find({ _id: req.body.email });
     // A mongodb cursor is returned
@@ -16,7 +18,7 @@ router.post("/", async (req, res) => {
     if (profile === null) {
       console.log(`Profile is null ${req.body.email}`);
       return res.status(401).send({
-        statusMessage: "Could not log in. Email or password is incorrect.",
+        statusMessage: "Could not log in. Email or password is incorrect."
       });
     }
 
@@ -39,17 +41,17 @@ router.post("/", async (req, res) => {
     if (!isValid) {
       console.log("Genuinely invalid");
       return res.status(401).send({
-        statusMessage: "Could not log in. Email or password is incorrect.",
+        statusMessage: "Could not log in. Email or password is incorrect."
       });
     }
 
     const accessToken = generateAccessToken({
       name: profile.name,
-      email: profile.email,
+      email: profile.email
     });
     const [refreshTokenId, refreshToken] = generateRefreshToken({
       name: profile.name,
-      email: profile.email,
+      email: profile.email
     });
     // Decode the refresh token and get the header, which contains the jwtid
 
@@ -57,8 +59,8 @@ router.post("/", async (req, res) => {
       { _id: req.body.email },
       {
         $set: {
-          refreshTokenId: refreshTokenId,
-        },
+          refreshTokenId
+        }
       }
     );
 
@@ -66,15 +68,15 @@ router.post("/", async (req, res) => {
       name: profile.name,
       email: req.body.email,
       statusMessage: "Successfully logged in",
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      accessToken,
+      refreshToken
     });
   } catch (error) {
     console.log(error);
     return res.status(401).send({
-      statusMessage: "Could not log in. Email or password is incorrect.",
+      statusMessage: "Could not log in. Email or password is incorrect."
     });
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,6 +1,7 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const { refreshTokenPublicKeys } = require("./auth");
+import express from "express";
+import jwt from "jsonwebtoken";
+import { refreshTokenPublicKeys } from "./auth";
+
 const router = express.Router();
 
 /*
@@ -20,31 +21,31 @@ router.post("/", async (req, res) => {
       req.app.locals.database.collection("Verified-Accounts");
     const {
       header: { kid },
-      payload: { email },
+      payload: { email }
     } = jwt.decode(req.body.refreshToken, {
-      complete: true,
+      complete: true
     });
     const publicKey = refreshTokenPublicKeys[kid];
     const { name, refreshTokenId } = await authCollection.findOne({
       _id: email,
-      email: email,
+      email
     });
 
     jwt.verify(req.body.refreshToken, publicKey, {
       jwtid: refreshTokenId,
-      algorithm: "RS256",
+      algorithm: "RS256"
     });
 
     // If now error was thrown, the refreshToken is verified and we can clear the session.
     await authCollection.updateOne(
       {
         _id: email,
-        email: email,
+        email
       },
       { $set: { refreshTokenId: null } }
     );
     return res.status(200).send({
-      statusMessage: `Logged out user with id (${email}) and name (${name}).`,
+      statusMessage: `Logged out user with id (${email}) and name (${name}).`
     });
   } catch (error) {
     console.log(error);
@@ -52,4 +53,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

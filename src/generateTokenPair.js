@@ -1,10 +1,10 @@
-const express = require("express");
-const {
+import express from "express";
+import jwt from "jsonwebtoken";
+import {
   generateAccessToken,
   generateRefreshToken,
-  refreshTokenPublicKeys,
-} = require("./auth");
-const jwt = require("jsonwebtoken");
+  refreshTokenPublicKeys
+} from "./auth";
 
 const router = express.Router();
 
@@ -16,15 +16,15 @@ router.post("/", async (req, res) => {
 
     const {
       header: { kid },
-      payload: { email },
+      payload: { email, jti }
     } = jwt.decode(req.body.refreshToken, {
-      complete: true,
+      complete: true
     });
     // Decode the refresh token and get the header, which contains the jwtid
     const publicKey = refreshTokenPublicKeys[kid];
     const account = await authCollection.findOne({
       _id: email,
-      email: email,
+      email
     });
 
     if (account === null) {
@@ -33,20 +33,28 @@ router.post("/", async (req, res) => {
         .send({ statusMessage: "Could not log in. Account does not exist." });
     }
     // Verify the jwt and make sure its id matches the one we have stored in the db
-    const jwtid = account.refreshTokenId;
+    const actualJwtId = account.refreshTokenId;
+    if (actualJwtId === null || actualJwtId === undefined) {
+      console.log("here");
+      throw new Error(
+        `Token jwtid/jti ${jti} does not match database jwtid ${actualJwtId}`
+      );
+    }
+    console.log(account);
+    console.log(account);
     jwt.verify(req.body.refreshToken, publicKey, {
-      jwtid: jwtid,
-      algorithm: "RS256",
+      jwtid: actualJwtId,
+      algorithm: "RS256"
     });
 
     // On successful verification, (no throw), generate the new tokens
     const accessToken = generateAccessToken({
       name: account.name,
-      email: account.email,
+      email: account.email
     });
     const [refreshTokenId, refreshToken] = generateRefreshToken({
       name: account.name,
-      email: account.email,
+      email: account.email
     });
 
     // Update the db to account for the new refreshTokenId,
@@ -55,14 +63,14 @@ router.post("/", async (req, res) => {
       { _id: account.email },
       {
         $set: {
-          refreshTokenId: refreshTokenId,
-        },
+          refreshTokenId
+        }
       }
     );
     return res.status(200).send({
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      statusMessage: "Generated new access and refresh tokens",
+      accessToken,
+      refreshToken,
+      statusMessage: "Generated new access and refresh tokens"
     });
   } catch (error) {
     console.log(error);
@@ -70,4 +78,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

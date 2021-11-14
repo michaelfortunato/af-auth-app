@@ -1,10 +1,8 @@
-const express = require("express");
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-const redis = require("redis");
-const { time } = require("console");
-const { generateAccessToken, generateRefreshToken } = require("./auth");
-const e = require("express");
+import express from "express";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import { generateRefreshToken } from "./auth";
+
 const router = express.Router();
 
 const saltRounds = 10;
@@ -17,18 +15,18 @@ const isUserVerified = async (req, res, next) => {
       req.app.locals.database.collection("Verified-Accounts");
     const accountAlreadyExists = await accountCollection.findOne({
       _id: email,
-      email: email,
+      email
     });
     if (accountAlreadyExists !== null) {
       return res
         .status(401)
         .send({ statusMessage: "Email already registered to Art-Flex." });
     }
-    next();
+    return next();
   } catch (error) {
     console.log("isUserVerifiedError");
     console.log(error);
-    next(error);
+    return next(error);
   }
 };
 
@@ -51,12 +49,12 @@ const signUpUser = async (req, res, next) => {
     await req.app.locals.master_cache_set(
       req.body.username,
       req.locals.hashedPassword
-    );*/
+    ); */
     const signUpCollection = req.app.locals.database.collection("SignUpForms");
 
     const email = req.body.email.toLowerCase();
-    //If someone previously attempted a sign up but did not complete verification,
-    //then we want to replace their sign up entry.
+    // If someone previously attempted a sign up but did not complete verification,
+    // then we want to replace their sign up entry.
     const verificationToken = crypto.randomBytes(48).toString("hex");
     signUpCollection.createIndex(
       { verificationToken: 1 },
@@ -65,26 +63,26 @@ const signUpUser = async (req, res, next) => {
     // Notice the tokenCreatedAt field,
     // its a safe guard in case mongodb forgets to delete the entry after expiration
     await signUpCollection.replaceOne(
-      { _id: email, email: email },
+      { _id: email, email },
       {
         _id: email,
         name: req.body.name,
-        email: email,
+        email,
         password: res.locals.hashedPassword,
-        verificationToken: verificationToken,
-        tokenCreatedAt: new Date().getTime(),
+        verificationToken,
+        tokenCreatedAt: new Date().getTime()
       },
       { upsert: true }
     );
 
     res.locals.body = {
-      email: email,
-      verificationToken: verificationToken,
+      email,
+      verificationToken
     };
-    next();
+    return next();
   } catch (error) {
     console.log("signUpUserError");
-    next(error);
+    return next(error);
   }
 };
 
@@ -95,12 +93,12 @@ const verifyUser = async (req, res, next) => {
     res.locals.user = await signUpCollection.findOne({
       _id: res.locals.email,
       email: res.locals.email,
-      verificationToken: req.body.token,
+      verificationToken: req.body.token
     });
     if (!res.locals.user) {
       return res.status(401).send({
         statusMessage:
-          "Could not verify account. Sign up form has not been filled out or verification token is incorrect.",
+          "Could not verify account. Sign up form has not been filled out or verification token is incorrect."
       });
     }
 
@@ -112,19 +110,19 @@ const verifyUser = async (req, res, next) => {
     if (!isValid) {
       return res.status(401).send({
         statusMessage:
-          "Could not verify account. Verification token is expired.",
+          "Could not verify account. Verification token is expired."
       });
     }
-    next();
+    return next();
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
 const refreshTokenForVerifiedUser = (req, res, next) => {
   const [refreshTokenId, refreshToken] = generateRefreshToken({
     name: res.locals.user.name,
-    email: res.locals.user.email,
+    email: res.locals.user.email
   });
   res.locals.refreshTokenId = refreshTokenId;
   res.locals.refreshToken = refreshToken;
@@ -141,7 +139,7 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
       email: res.locals.user.email,
       password: res.locals.user.password,
       refreshTokenId: res.locals.refreshTokenId,
-      role: res.locals.user.role,
+      role: res.locals.user.role
     });
     next();
   } catch (error) {
@@ -150,25 +148,28 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
 };
 const addUserToAccountsDB = async (req, res, next) => {
   try {
-    const accountCollection = req.app.locals.connected_mongo_client
+    const accountCollection = req.app.locals.mongoDBClient
       .db(process.env.MONGO_ACCOUNT_DB)
       .collection("accounts");
 
-    await accountCollection.insertOne({
-      _id: res.locals.user.email,
-      name: res.locals.user.name,
-      email: res.locals.user.email,
-      role: res.locals.user.role,
-    });
+    await accountCollection.replaceOne(
+      {
+        _id: res.locals.user.email,
+        name: res.locals.user.name,
+        email: res.locals.user.email,
+        role: res.locals.user.role
+      },
+      { upsert: true }
+    );
     next();
   } catch (error) {
     next(error);
   }
 };
 
-router.post("/new", [isUserVerified, hashPassword, signUpUser], (req, res) => {
-  return res.status(200).send(res.locals.body);
-});
+router.post("/new", [isUserVerified, hashPassword, signUpUser], (req, res) =>
+  res.status(200).send(res.locals.body)
+);
 
 router.post(
   "/verify",
@@ -177,22 +178,21 @@ router.post(
     verifyUser,
     refreshTokenForVerifiedUser,
     addUserToVerifiedAccounts,
-    addUserToAccountsDB,
+    addUserToAccountsDB
   ],
-  (req, res) => {
-    return res.status(200).send({
+  (req, res) =>
+    res.status(200).send({
       name: res.locals.user.name,
       email: res.locals.user.email,
       refreshToken: res.locals.refreshToken,
-      statusMessage: "Successfully verfied user. Account created.",
-    });
-  }
+      statusMessage: "Successfully verfied user. Account created."
+    })
 );
 
-router.use((error, req, res, next) => {
+router.use((error, req, res) => {
   // We need to conceal errors, console.log them
   console.log(error);
   return res.sendStatus(500);
 });
 
-module.exports = router;
+export default router;
