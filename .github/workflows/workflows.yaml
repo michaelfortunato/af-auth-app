@@ -21,7 +21,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   RW_ACCOUNT_WIDE_TOKEN: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN }}
-  CONTAINER_IMAGE_BASE_NAME: af-auth-ap
+  CONTAINER_IMAGE_BASE_NAME: af-auth-app
 jobs:
   build-and-push:
     name: Build and deploy
