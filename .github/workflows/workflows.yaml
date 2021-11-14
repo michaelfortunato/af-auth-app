@@ -10,6 +10,7 @@ on:
     #- "**/*.html"
     branches: # array of glob patterns matching against refs/heads. Optional; defaults to all
       - main # triggers on pushes that contain changes in master
+      - dev # triggers on pushes that contain changes in master
 
 name: Build and Push an Image to ECR
 # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
@@ -19,43 +20,79 @@ env:
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  CONTAINER_IMAGE: af-auth-app:${{ github.sha }}
+  RW_ACCOUNT_WIDE_TOKEN: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN }}
+  CONTAINER_IMAGE_BASE_NAME: af-auth-ap
 jobs:
   build-and-push:
     name: Build and deploy
     runs-on: ubuntu-latest
+    outputs:
+      CONTAINER_IMAGE: ${{ steps.output_step.outputs.CONTAINER_IMAGE }}
+      BRANCH_NAME: ${{ steps.output_step.outputs.BRANCH_NAME }}
+    if: ${{ (github.ref == 'ref/heads/main') || ( github.ref == 'refs/heads/dev') }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
 
-      # Add steps here like linting, testing, minification, etc.
-
+      # Get the branch name and (todo) Get the semver to tag the image appropriately
+      - name: Set CONTAINER_IMAGE
+        run: |
+          if [ $GITHUB_REF == 'refs/heads/main' ]; then
+            # Get semver from package.json
+            IMAGE_TAG=main-$GITHUB_SHA
+          elif [ $GITHUB_REF == 'refs/heads/dev' ]; then
+            # Get semver from package.json
+            IMAGE_TAG=dev-$GITHUB_SHA
+          else
+            # Just append the hash
+            IMAGE_TAG=feature-$GITHUB_SHA
+          fi
+          echo $IMAGE_TAG
+          echo "CONTAINER_IMAGE=$CONTAINER_IMAGE_BASE_NAME:$IMAGE_TAG" >> $GITHUB_ENV
       - name: Setup ECR
         run: |
           # Login to AWS ECR
-          aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.us-east-2.amazonaws.com
+          aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-2.amazonaws.com
       - name: Build and tag the image
         run: |
           # Build and tag the image
           docker build \
-            -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE ./src
+            -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${{ env.CONTAINER_IMAGE }} .
       # Push to AWS
       - name: Push
         run: |
           # Push image to AWS ECR
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${{ env.CONTAINER_IMAGE }}
+      # Output branch name and CONTAINER_IMAGE to be used by downstream jobs
+      - name: Output branch and and container image
+        id: output_step
+        run: |
+          if [ $GITHUB_REF == 'refs/heads/main' ]; then
+            echo "::set-output name=BRANCH_NAME::prod"
+          elif [ $GITHUB_REF == 'refs/heads/dev' ]; then
+            echo "::set-output name=BRANCH_NAME::dev"
+          else
+            echo "::set-output name=BRANCH_NAME::null"
+          fi
+          echo "::set-output name=CONTAINER_IMAGE::${{ env.CONTAINER_IMAGE }}"
+  update-flux-repo:
+    name: Update flux repo
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: ${{ (needs.build-and-push.outputs.BRANCH_NAME == 'main') || (needs.build-and-push.outputs.BRANCH_NAME == 'dev') }}
+    steps:
       # Set image tag in kustomization
       - name: pull from af-flux
         uses: actions/checkout@v2
         with:
           repository: michaelfortunato/af-flux-repo
-          token: ${{secrets.RW_ACCOUNT_WIDE_TOKEN}}
+          token: ${{ env.RW_ACCOUNT_WIDE_TOKEN }}
           ref: main
           path: "af-flux-repo"
-      - name: Set image tag
+      - name: Patch proper version of the kustomization app.
         run: |
-          cd ./af-flux-repo/apps/base/auth-app
-          kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
+          cd ./af-flux-repo/apps/${{ needs.build-and-push.outputs.BRANCH_NAME }}/auth-app
+          kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${{ needs.build-and-push.outputs.CONTAINER_IMAGE }}
           cat kustomization.yaml
       - name: Commit kustomization
         run: |
@@ -63,12 +100,12 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git status
-          git commit -a -m "$CONTAINER_IMAGE"
+          git commit -a -m "Patched image ${{ needs.build-and-push.outputs.CONTAINER_IMAGE }}"
       - name: Push changes to master
         uses: ad-m/github-push-action@master
         with:
           directory: af-flux-repo
-          github_token: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN}}
+          github_token: ${{ env.RW_ACCOUNT_WIDE_TOKEN }}
           repository: michaelfortunato/af-flux-repo
           branch: main
           force: true
