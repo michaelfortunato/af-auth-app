@@ -1,6 +1,9 @@
+/* eslint-disable import/no-unresolved */
+/* eslint-disable import/extensions */
 import express from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { MONGO_ACCOUNTS_DB } from "./secrets";
 import { generateRefreshToken } from "./auth";
 
 const router = express.Router();
@@ -149,7 +152,7 @@ const addUserToVerifiedAccounts = async (req, res, next) => {
 const addUserToAccountsDB = async (req, res, next) => {
   try {
     const accountCollection = req.app.locals.mongoDBClient
-      .db(process.env.MONGO_ACCOUNT_DB)
+      .db(MONGO_ACCOUNTS_DB)
       .collection("accounts");
 
     await accountCollection.replaceOne(

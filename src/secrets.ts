@@ -90,24 +90,15 @@ const { databaseName: MONGO_AUTH_DB } = databases.filter(
     databaseName === "authDB"
 )[0];
 
+const { databaseName: MONGO_ACCOUNTS_DB } = databases.filter(
+  ({ databaseName }: { databaseName: string; databaseRole: string }) =>
+    databaseName === "accountDB"
+)[0];
+
 const REPLICA_SET_QUERY_PARAMETER =
   replicasetName !== "" ? `&replicaSet=${replicasetName}` : "";
 
 const { AUTH_APP_SERVICE_SERVICE_PORT } = process.env;
-
-console.log({
-  accessTokenPrivateKeys,
-  accessTokenPublicKeys,
-  refreshTokenPrivateKeys,
-  refreshTokenPublicKeys,
-  clusterEndpoint,
-  clusterPort,
-  REPLICA_SET_QUERY_PARAMETER,
-  MONGO_USERNAME,
-  MONGO_PASSWORD,
-  MONGO_AUTH_DB,
-  AUTH_APP_SERVICE_SERVICE_PORT
-});
 
 export {
   accessTokenPrivateKeys,
@@ -120,5 +111,6 @@ export {
   MONGO_USERNAME,
   MONGO_PASSWORD,
   MONGO_AUTH_DB,
+  MONGO_ACCOUNTS_DB,
   AUTH_APP_SERVICE_SERVICE_PORT
 };
