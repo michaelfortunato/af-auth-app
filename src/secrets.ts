@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import YAML from "yaml";
 
 const secretFolderPath = process.env.SECRET_FOLDER_PATH as string;
 
@@ -59,64 +60,65 @@ if (
 
 // Get database credentials
 
-const MONGO_CLUSTER_ENDPOINT = fs.readFileSync(
-  path.join(
-    secretFolderPath,
-    "mongo-secrets",
-    "meta-data__mongo-cluster-endpoint.txt"
-  ),
-  { encoding: "utf-8" }
+const clusterMetaData = YAML.parse(
+  fs.readFileSync(
+    path.join(secretFolderPath, "mongo-secrets", "meta-data.yaml"),
+    { encoding: "utf-8" }
+  )
 );
-const MONGO_PORT = fs.readFileSync(
-  path.join(
-    secretFolderPath,
-    "mongo-secrets",
-    "meta-data__mongo-cluster-port.txt"
-  ),
-  { encoding: "utf-8" }
-);
-const MONGO_USERNAME = fs.readFileSync(
-  path.join(
-    secretFolderPath,
-    "mongo-secrets",
-    "users__auth-app__databases__authDB__username.txt"
-  ),
-  { encoding: "utf-8" }
-);
+const { clusterEndpoint, clusterPort, replicasetName } = clusterMetaData;
 
-const MONGO_PASSWORD = fs.readFileSync(
-  path.join(
-    secretFolderPath,
-    "mongo-secrets",
-    "users__auth-app__databases__authDB__password.txt"
-  ),
-  { encoding: "utf-8" }
-);
+const databaseCredentials = YAML.parse(
+  fs.readFileSync(
+    path.join(secretFolderPath, "mongo-secrets", "authAppCredentials.yaml"),
+    { encoding: "utf-8" }
+  )
+) as {
+  username: string;
+  password: string;
+  databases: { databaseName: string; databaseRole: string }[];
+};
 
-const MONGO_AUTH_DB = "authDB";
-const REPLICA_SET = fs.readFileSync(
-  path.join(
-    secretFolderPath,
-    "mongo-secrets",
-    "meta-data__mongo-replica-set.txt"
-  ),
-  { encoding: "utf-8" }
-);
+const {
+  username: MONGO_USERNAME,
+  password: MONGO_PASSWORD,
+  databases
+} = databaseCredentials;
+
+const { databaseName: MONGO_AUTH_DB } = databases.filter(
+  ({ databaseName }: { databaseName: string; databaseRole: string }) =>
+    databaseName === "authDB"
+)[0];
+
 const REPLICA_SET_QUERY_PARAMETER =
-  REPLICA_SET !== "" ? `&replicaSet=${REPLICA_SET}` : "";
+  replicasetName !== "" ? `&replicaSet=${replicasetName}` : "";
 
 const { AUTH_APP_SERVICE_SERVICE_PORT } = process.env;
+
+console.log({
+  accessTokenPrivateKeys,
+  accessTokenPublicKeys,
+  refreshTokenPrivateKeys,
+  refreshTokenPublicKeys,
+  clusterEndpoint,
+  clusterPort,
+  REPLICA_SET_QUERY_PARAMETER,
+  MONGO_USERNAME,
+  MONGO_PASSWORD,
+  MONGO_AUTH_DB,
+  AUTH_APP_SERVICE_SERVICE_PORT
+});
 
 export {
   accessTokenPrivateKeys,
   accessTokenPublicKeys,
   refreshTokenPrivateKeys,
   refreshTokenPublicKeys,
-  MONGO_CLUSTER_ENDPOINT,
-  MONGO_PORT,
+  clusterEndpoint as MONGO_CLUSTER_ENDPOINT,
+  clusterPort as MONGO_PORT,
+  REPLICA_SET_QUERY_PARAMETER,
   MONGO_USERNAME,
   MONGO_PASSWORD,
   MONGO_AUTH_DB,
-  REPLICA_SET_QUERY_PARAMETER,
   AUTH_APP_SERVICE_SERVICE_PORT
 };

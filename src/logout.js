@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
       req.app.locals.database.collection("Verified-Accounts");
     const {
       header: { kid },
-      payload: { email }
+      payload: { email, jti }
     } = jwt.decode(req.body.refreshToken, {
       complete: true
     });
@@ -30,6 +30,13 @@ router.post("/", async (req, res) => {
       _id: email,
       email
     });
+
+    // Verify the jwt and make sure its id matches the one we have stored in the db
+    if (refreshTokenId === null || refreshTokenId === undefined) {
+      throw new Error(
+        `Token jwtid/jti ${jti} does not match database jwtid ${refreshTokenId}`
+      );
+    }
 
     jwt.verify(req.body.refreshToken, publicKey, {
       jwtid: refreshTokenId,
