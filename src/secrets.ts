@@ -110,7 +110,7 @@ console.log(`What string is this"${replicasetName}"`);
 
 const REPLICA_SET_QUERY_PARAMETER =
   replicasetName !== "" &&
-  replicasetName === undefined &&
+  replicasetName !== undefined &&
   replicasetName !== null
     ? `&replicaSet=${replicasetName}`
     : "";
