@@ -22,7 +22,7 @@ const app = express();
 // MongoDB connection string build
 const connectionString =
   `mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
-  `/?authSource=admin&${REPLICA_SET_QUERY_PARAMETER}&retryWrites=false`;
+  `/?authSource=admin${REPLICA_SET_QUERY_PARAMETER}&retryWrites=false`;
 // "rc-chart-redis-master" //"rc-chart-redis-master.default.svc.cluster.local"
 
 async function main() {
