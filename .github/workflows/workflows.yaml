@@ -91,7 +91,7 @@ jobs:
           path: "af-flux-repo"
       - name: Patch proper version of the kustomization app.
         run: |
-          cd ./af-flux-repo/apps/${{ needs.build-and-push.outputs.BRANCH_NAME }}/auth-app
+          cd ./af-flux-repo/apps/${{ needs.build-and-push.outputs.BRANCH_NAME }}/art-flex-apps/auth-app
           kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/${{ needs.build-and-push.outputs.CONTAINER_IMAGE }}
           cat kustomization.yaml
       - name: Commit kustomization
