@@ -109,10 +109,31 @@ const { databaseName: MONGO_ACCOUNTS_DB } = databases.filter(
 console.log(`What string is this"${replicasetName}"`);
 
 const REPLICA_SET_QUERY_PARAMETER =
-  replicasetName !== "" ? `&replicaSet=${replicasetName}` : "";
+  replicasetName !== "" &&
+  replicasetName === undefined &&
+  replicasetName !== null
+    ? `&replicaSet=${replicasetName}`
+    : "";
 
 const { AUTH_APP_SERVICE_SERVICE_PORT } = process.env;
 
+const c = {
+  accessTokenPrivateKeys,
+  accessTokenPublicKeys,
+  refreshTokenPrivateKeys,
+  refreshTokenPublicKeys,
+  clusterEndpoint,
+  clusterPort,
+  REPLICA_SET_QUERY_PARAMETER,
+  MONGO_USERNAME,
+  MONGO_PASSWORD,
+  MONGO_AUTH_DB,
+  MONGO_ACCOUNTS_DB,
+  AUTH_APP_SERVICE_SERVICE_PORT
+};
+console.log("dete after");
+console.log(c);
+console.log("delete afterr");
 export {
   accessTokenPrivateKeys,
   accessTokenPublicKeys,
