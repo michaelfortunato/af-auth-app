@@ -79,7 +79,7 @@ jobs:
     name: Update flux repo
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: ${{ (needs.build-and-push.outputs.BRANCH_NAME == 'main') || (needs.build-and-push.outputs.BRANCH_NAME == 'dev') }}
+    if: ${{ (needs.build-and-push.outputs.BRANCH_NAME == 'prod') || (needs.build-and-push.outputs.BRANCH_NAME == 'dev') }}
     steps:
       # Set image tag in kustomization
       - name: pull from af-flux

@@ -60,17 +60,28 @@ if (
 
 // Get database credentials
 
-const clusterMetaData = YAML.parse(
-  fs.readFileSync(
-    path.join(secretFolderPath, "mongo-secrets", "meta-data.yaml"),
-    { encoding: "utf-8" }
-  )
+const clusterEndpoint = fs.readFileSync(
+  path.join(secretFolderPath, "mongo-secrets", "cluster-endpoint.txt"),
+  { encoding: "utf-8" }
 );
-const { clusterEndpoint, clusterPort, replicasetName } = clusterMetaData;
+
+const clusterPort = fs.readFileSync(
+  path.join(secretFolderPath, "mongo-secrets", "cluster-port.txt"),
+  { encoding: "utf-8" }
+);
+
+const replicasetName = fs.readFileSync(
+  path.join(secretFolderPath, "mongo-secrets", "replica-set-name.txt"),
+  { encoding: "utf-8" }
+);
 
 const databaseCredentials = YAML.parse(
   fs.readFileSync(
-    path.join(secretFolderPath, "mongo-secrets", "authAppCredentials.yaml"),
+    path.join(
+      secretFolderPath,
+      "mongo-secrets",
+      "auth-app-db-credentials.yaml"
+    ),
     { encoding: "utf-8" }
   )
 ) as {
