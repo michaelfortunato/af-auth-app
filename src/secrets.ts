@@ -106,6 +106,8 @@ const { databaseName: MONGO_ACCOUNTS_DB } = databases.filter(
     databaseName === "accountDB"
 )[0];
 
+console.log(replicasetName);
+
 const REPLICA_SET_QUERY_PARAMETER =
   replicasetName !== "" ? `&replicaSet=${replicasetName}` : "";
 
