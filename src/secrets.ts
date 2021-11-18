@@ -71,7 +71,7 @@ const clusterPort = fs.readFileSync(
 );
 
 const replicasetName = fs.readFileSync(
-  path.join(secretFolderPath, "mongo-secrets", "replica-set-name.txt"),
+  path.join(secretFolderPath, "mongo-secrets", "replicaset-name.txt"),
   { encoding: "utf-8" }
 );
 
