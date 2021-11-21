@@ -1,6 +1,7 @@
 # build.yml
 on:
   ##pull_request:
+  # add a pr dependency on main and dev here
   ##paths:
   ##- "**/*.yml"
   ##- "**/*.html"
