@@ -76,14 +76,14 @@ const replicasetName = fs.readFileSync(
 );
 
 const databaseCredentials = YAML.parse(
-  fs.readFileSync(
+  Buffer.from(fs.readFileSync(
     path.join(
       secretFolderPath,
       "mongo-secrets",
       "auth-app-db-credentials.yaml"
     ),
     { encoding: "utf-8" }
-  )
+  ), "utf-8") as any as string
 ) as {
   username: string;
   password: string;
