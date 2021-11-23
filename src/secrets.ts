@@ -61,17 +61,17 @@ if (
 // Get database credentials
 
 const clusterEndpoint = fs.readFileSync(
-  path.join(secretFolderPath, "mongo-secrets", "cluster-endpoint.txt"),
+  path.join(secretFolderPath, "mongo-secrets", "cluster-endpoint"),
   { encoding: "utf-8" }
 );
 
 const clusterPort = fs.readFileSync(
-  path.join(secretFolderPath, "mongo-secrets", "cluster-port.txt"),
+  path.join(secretFolderPath, "mongo-secrets", "cluster-port"),
   { encoding: "utf-8" }
 );
 
 const replicasetName = fs.readFileSync(
-  path.join(secretFolderPath, "mongo-secrets", "replicaset-name.txt"),
+  path.join(secretFolderPath, "mongo-secrets", "replicaset-name"),
   { encoding: "utf-8" }
 );
 
@@ -120,8 +120,6 @@ const REPLICA_SET_QUERY_PARAMETER =
 
 const { AUTH_APP_SERVICE_SERVICE_PORT } = process.env;
 
-
-console.log("here")
 
 console.log(  {accessTokenPrivateKeys,
   accessTokenPublicKeys,

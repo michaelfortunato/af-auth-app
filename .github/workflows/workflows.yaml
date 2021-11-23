@@ -30,7 +30,6 @@ jobs:
     outputs:
       CONTAINER_IMAGE: ${{ steps.output_step.outputs.CONTAINER_IMAGE }}
       BRANCH_NAME: ${{ steps.output_step.outputs.BRANCH_NAME }}
-    #if: ${{ (github.ref == 'ref/heads/main') || ( github.ref == 'refs/heads/dev') }}
     steps:
       - name: Checkout
         uses: actions/checkout@master
