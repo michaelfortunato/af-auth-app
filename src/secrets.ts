@@ -83,7 +83,7 @@ let databaseCredentials2 =
       "auth-app-db-credentials"
     ),
     { encoding: "utf-8" }
-  ), "utf-8") as any as string
+  ), "utf-8").toString() as string;
 console.log(databaseCredentials2)
 let databaseCredentials = YAML.parse(databaseCredentials2) as {
   username: string;
