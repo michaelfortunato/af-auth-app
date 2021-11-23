@@ -75,7 +75,7 @@ const replicasetName = fs.readFileSync(
   { encoding: "utf-8" }
 );
 
-const databaseCredentials = YAML.parse(
+let databaseCredentials2 = 
   Buffer.from(fs.readFileSync(
     path.join(
       secretFolderPath,
@@ -84,7 +84,8 @@ const databaseCredentials = YAML.parse(
     ),
     { encoding: "utf-8" }
   ), "utf-8") as any as string
-) as {
+console.log(databaseCredentials2)
+let databaseCredentials = YAML.parse(databaseCredentials2) as {
   username: string;
   password: string;
   databases: { databaseName: string; databaseRole: string }[];
@@ -95,7 +96,6 @@ const {
   password: MONGO_PASSWORD,
   databases
 } = databaseCredentials;
-
 const { databaseName: MONGO_AUTH_DB } = databases.filter(
   ({ databaseName }: { databaseName: string; databaseRole: string }) =>
     databaseName === "authDB"
