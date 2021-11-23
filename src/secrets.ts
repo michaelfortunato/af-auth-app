@@ -80,7 +80,7 @@ const databaseCredentials = YAML.parse(
     path.join(
       secretFolderPath,
       "mongo-secrets",
-      "auth-app-db-credentials.yaml"
+      "auth-app-db-credentials"
     ),
     { encoding: "utf-8" }
   ), "utf-8") as any as string
