@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import YAML from "yaml";
 
+console.log(process.env.DEV_STAGE);
+
 const secretFolderPath = process.env.SECRET_FOLDER_PATH as string;
 
 const accessTokenPrivateKeyDir = path.join(
@@ -76,7 +78,7 @@ const replicasetName = fs.readFileSync(
 );
 
 const databaseCredentials = YAML.parse(
-  process.env.NODE_ENV !== "dev"
+  process.env.DEV_STAGE !== "dev"
     ? Buffer.from(
         fs.readFileSync(
           path.join(
