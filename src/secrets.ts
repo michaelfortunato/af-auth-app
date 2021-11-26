@@ -75,21 +75,27 @@ const replicasetName = fs.readFileSync(
   { encoding: "utf-8" }
 );
 
-let databaseCredentials2 = 
-  Buffer.from(fs.readFileSync(
-    path.join(
-      secretFolderPath,
-      "mongo-secrets",
-      "auth-app-db-credentials"
-    ),
-    { encoding: "utf-8" }
-  ), "base64").toString("ascii") as string;
-
-console.log(databaseCredentials2)
-let databaseCredentials = YAML.parse(databaseCredentials2) as {
+const databaseCredentials = YAML.parse(
+  process.env.NODE_ENV !== "dev"
+    ? Buffer.from(
+        fs.readFileSync(
+          path.join(
+            secretFolderPath,
+            "mongo-secrets",
+            "auth-app-db-credentials"
+          ),
+          { encoding: "utf-8" }
+        ),
+        "base64"
+      ).toString("ascii")
+    : fs.readFileSync(
+        path.join(secretFolderPath, "mongo-secrets", "auth-app-db-credentials"),
+        { encoding: "utf-8" }
+      )
+) as {
   username: string;
   password: string;
-  databases: { databaseName: string; databaseRole: string }[];
+  databases: { databaseName: string; databaseRole: string };
 };
 
 const {
@@ -121,8 +127,8 @@ const REPLICA_SET_QUERY_PARAMETER =
 
 const { AUTH_APP_SERVICE_SERVICE_PORT } = process.env;
 
-
-console.log(  {accessTokenPrivateKeys,
+console.log({
+  accessTokenPrivateKeys,
   accessTokenPublicKeys,
   refreshTokenPrivateKeys,
   refreshTokenPublicKeys,
@@ -133,7 +139,8 @@ console.log(  {accessTokenPrivateKeys,
   MONGO_PASSWORD,
   MONGO_AUTH_DB,
   MONGO_ACCOUNTS_DB,
-  AUTH_APP_SERVICE_SERVICE_PORT})
+  AUTH_APP_SERVICE_SERVICE_PORT
+});
 
 export {
   accessTokenPrivateKeys,
