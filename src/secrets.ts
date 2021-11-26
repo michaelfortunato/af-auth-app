@@ -97,7 +97,7 @@ const databaseCredentials = YAML.parse(
 ) as {
   username: string;
   password: string;
-  databases: { databaseName: string; databaseRole: string };
+  databases: { databaseName: string; databaseRole: string }[];
 };
 
 const {
