@@ -84,6 +84,7 @@ let databaseCredentials2 =
     ),
     { encoding: "utf-8" }
   ), "base64").toString("ascii") as string;
+
 console.log(databaseCredentials2)
 let databaseCredentials = YAML.parse(databaseCredentials2) as {
   username: string;
