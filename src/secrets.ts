@@ -62,10 +62,13 @@ if (
 
 // Get database credentials
 
-const clusterEndpoint = fs.readFileSync(
-  path.join(secretFolderPath, "mongo-secrets", "cluster-endpoint"),
-  { encoding: "utf-8" }
-);
+const clusterEndpoint =
+  process.env.DEV_STAGE !== "dev"
+    ? fs.readFileSync(
+        path.join(secretFolderPath, "mongo-secrets", "cluster-endpoint"),
+        { encoding: "utf-8" }
+      )
+    : process.env.MONGO_SERVICE_SERVICE_HOST;
 
 const clusterPort = fs.readFileSync(
   path.join(secretFolderPath, "mongo-secrets", "cluster-port"),
