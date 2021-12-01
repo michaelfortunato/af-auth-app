@@ -6,10 +6,7 @@
       "request": "launch",
       "name": "Launch Program with Kubernetes",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run-script",
-        "dev"
-      ],
+      "runtimeArgs": ["run-script", "dev"],
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "bridge-to-kubernetes.resource",
       "env": {
@@ -21,10 +18,7 @@
       "request": "launch",
       "name": "Launch Program",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run-script",
-        "dev"
-      ],
+      "runtimeArgs": ["run-script", "dev"],
       "cwd": "${workspaceFolder}"
     }
   ]

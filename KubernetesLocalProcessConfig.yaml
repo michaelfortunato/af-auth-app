@@ -1,0 +1,39 @@
+version: 0.1
+volumeMounts:
+  - name: mongo-secrets
+    localPath: /tmp/etc/secret-volume/mongo-secrets
+  - name: access-token-public-keys
+    localPath: /tmp/etc/secret-volume/access-token-public-keys
+  - name: access-token-private-keys
+    localPath: /tmp/etc/secret-volume/access-token-private-keys
+  - name: refresh-token-public-keys
+    localPath: /tmp/etc/secret-volume/refresh-token-public-keys
+  - name: refresh-token-private-keys
+    localPath: /tmp/etc/secret-volume/refresh-token-private-keys
+env:
+  - name: DEV_STAGE
+    value: dev
+  - name: SECRET_FOLDER_PATH
+    value: /tmp/etc/secret-volume
+  - name: MONGO_DUMMY
+    value: $(volumeMounts:mongo-secrets)
+  - name: AT_PUB
+    value: $(volumeMounts:access-token-public-keys)
+  - name: AT_PRIV
+    value: $(volumeMounts:access-token-private-keys)
+  - name: RF_PUB
+    value: $(volumeMounts:refresh-token-public-keys)
+  - name: RF_PRIV
+    value: $(volumeMounts:refresh-token-private-keys)
+  - name: MONGO_SERVICE_SERVIC
+    value: "mongo-service.art-flex-apps.svc.cluster.local"
+  - name: MONGO
+    value: $(services:mongo-service)
+  - name: AUTH_APP_SERVICE_SERVICE_HOST
+    value: $(services:auth-app-service)
+  - name: AUTH_APP_SERVICE_SERVICE_PORT
+    value: 8080
+  - name: ACCOUNT_APP_SERVICE_SERVICE_HOST
+    value: $(services:account-app)
+  - name: ACCOUNT_APP_SERVICE_SERVICE_PORT
+    value: 8080

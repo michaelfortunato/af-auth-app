@@ -1,17 +1,15 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "bridge-to-kubernetes.resource",
-			"type": "bridge-to-kubernetes.resource",
-			"resource": "auth-app-service",
-			"resourceType": "service",
-			"ports": [
-				8081
-			],
-			"targetCluster": "minikube",
-			"targetNamespace": "art-flex-apps",
-			"useKubernetesServiceEnvironmentVariables": false
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "bridge-to-kubernetes.resource",
+      "type": "bridge-to-kubernetes.resource",
+      "resource": "auth-app-service",
+      "resourceType": "service",
+      "ports": [8081],
+      "targetCluster": "minikube",
+      "targetNamespace": "art-flex-apps",
+      "useKubernetesServiceEnvironmentVariables": false
+    }
+  ]
 }
