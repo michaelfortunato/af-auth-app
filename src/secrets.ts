@@ -63,7 +63,7 @@ if (
 // Get database credentials
 
 const clusterEndpoint =
-  process.env.NODE_ENV !== "development"
+  process.env.X_NODE_ENV !== "development"
     ? fs.readFileSync(
         path.join(secretFolderPath, "mongo-secrets", "cluster-endpoint"),
         { encoding: "utf-8" }
@@ -81,7 +81,7 @@ const replicasetName = fs.readFileSync(
 );
 
 const databaseCredentials = YAML.parse(
-  process.env.NODE_ENV !== "development"
+  process.env.X_NODE_ENV !== "development"
     ? Buffer.from(
         fs.readFileSync(
           path.join(
@@ -127,7 +127,7 @@ const REPLICA_SET_QUERY_PARAMETER =
     : "";
 
 const AUTH_APP_SERVICE_SERVICE_PORT =
-  process.env.NODE_ENV === "development"
+  process.env.X_NODE_ENV === "development"
     ? process.env.LOCAL_PORT
     : process.env.AUTH_APP_SERVICE_PORT;
 
