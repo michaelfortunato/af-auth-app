@@ -126,10 +126,9 @@ const REPLICA_SET_QUERY_PARAMETER =
     ? `&replicaSet=${replicasetName}`
     : "";
 
-const AUTH_APP_SERVICE_SERVICE_PORT =
-  process.env.X_NODE_ENV === "development"
-    ? process.env.LOCAL_PORT
-    : process.env.AUTH_APP_SERVICE_PORT;
+const AUTH_APP_SERVICE_SERVICE_PORT = process.env.LOCAL_PORT
+  ? process.env.LOCAL_PORT
+  : process.env.AUTH_APP_SERVICE_PORT;
 
 export {
   accessTokenPrivateKeys,
