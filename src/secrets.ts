@@ -2,9 +2,9 @@ import fs from "fs";
 import path from "path";
 import YAML from "yaml";
 
-console.log(process.env.DEV_STAGE);
-
-const secretFolderPath = process.env.SECRET_FOLDER_PATH as string;
+const secretFolderPath = process.env.MOUNT_PATH
+  ? path.join(process.env.MOUNT_PATH, process.env.SECRET_FOLDER_PATH as string)
+  : (process.env.SECRET_FOLDER_PATH as string);
 
 const accessTokenPrivateKeyDir = path.join(
   secretFolderPath,
@@ -63,7 +63,7 @@ if (
 // Get database credentials
 
 const clusterEndpoint =
-  process.env.DEV_STAGE !== "dev"
+  process.env.NODE_ENV !== "development"
     ? fs.readFileSync(
         path.join(secretFolderPath, "mongo-secrets", "cluster-endpoint"),
         { encoding: "utf-8" }
@@ -81,7 +81,7 @@ const replicasetName = fs.readFileSync(
 );
 
 const databaseCredentials = YAML.parse(
-  process.env.DEV_STAGE !== "dev"
+  process.env.NODE_ENV !== "development"
     ? Buffer.from(
         fs.readFileSync(
           path.join(
@@ -108,6 +108,7 @@ const {
   password: MONGO_PASSWORD,
   databases
 } = databaseCredentials;
+
 const { databaseName: MONGO_AUTH_DB } = databases.filter(
   ({ databaseName }: { databaseName: string; databaseRole: string }) =>
     databaseName === "authDB"
@@ -118,11 +119,6 @@ const { databaseName: MONGO_ACCOUNTS_DB } = databases.filter(
     databaseName === "accountDB"
 )[0];
 
-// debugging replicasetName
-console.log(replicasetName === "");
-console.log(replicasetName === undefined);
-console.log(replicasetName === null);
-
 const REPLICA_SET_QUERY_PARAMETER =
   replicasetName !== "" &&
   replicasetName !== undefined &&
@@ -130,22 +126,10 @@ const REPLICA_SET_QUERY_PARAMETER =
     ? `&replicaSet=${replicasetName}`
     : "";
 
-const { AUTH_APP_SERVICE_SERVICE_PORT } = process.env;
-
-console.log({
-  accessTokenPrivateKeys,
-  accessTokenPublicKeys,
-  refreshTokenPrivateKeys,
-  refreshTokenPublicKeys,
-  clusterEndpoint,
-  clusterPort,
-  REPLICA_SET_QUERY_PARAMETER,
-  MONGO_USERNAME,
-  MONGO_PASSWORD,
-  MONGO_AUTH_DB,
-  MONGO_ACCOUNTS_DB,
-  AUTH_APP_SERVICE_SERVICE_PORT
-});
+const AUTH_APP_SERVICE_SERVICE_PORT =
+  process.env.NODE_ENV === "development"
+    ? process.env.LOCAL_PORT
+    : process.env.AUTH_APP_SERVICE_PORT;
 
 export {
   accessTokenPrivateKeys,

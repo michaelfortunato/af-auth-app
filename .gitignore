@@ -4,6 +4,7 @@
 *.pem
 *.pem.pub
 secret.yaml
+*.env
 
 # Logs
 logs
