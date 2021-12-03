@@ -128,7 +128,7 @@ const REPLICA_SET_QUERY_PARAMETER =
 
 const AUTH_APP_SERVICE_SERVICE_PORT = process.env.LOCAL_PORT
   ? process.env.LOCAL_PORT
-  : process.env.AUTH_APP_SERVICE_PORT;
+  : process.env.AUTH_APP_SERVICE_SERVICE_PORT;
 
 export {
   accessTokenPrivateKeys,
